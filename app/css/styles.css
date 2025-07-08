@@ -15,7 +15,7 @@
     --action-error: #ef5350; /* Color para mensajes de error o acciones de peligro */
     --action-success: #66bb6a; /* Color para acciones de éxito */
     --action-warning: #ffa726; /* Color para advertencias */
-    --font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; /* Familia de fuentes principal */
+    --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; /* Familia de fuentes principal */
     --sidebar-width-collapsed: 60px;
     --sidebar-width-expanded: 240px;
 }
@@ -127,7 +127,7 @@ body {
 }
  
 /* Estilos para los campos de entrada de texto y contraseña */
-input[type="text"], input[type="password"], input[type="email"], select {
+input[type="text"], input[type="password"], input[type="email"], input[type="number"], input[type="date"], select {
     width: 100%; /* Ocupa todo el ancho del contenedor */
     padding: 14px 18px; /* Espaciado interno */
     border: 1px solid var(--border-color); /* Borde */
@@ -324,17 +324,18 @@ input:focus, select:focus {
     color: white; /* Asegura que el icono sea blanco para el botón de cerrar sesión */
 }
 
-/* --- Estilos para la página de Gestión de Usuarios (users.html) --- */
+/* --- Estilos para la página de Gestión de Usuarios (users.html) y Insumos (inventory.html) --- */
 
+/* General body setup for pages with sidebar */
 body {
-    /* Ya definidos globalmente, pero se reafirman para claridad */
     font-family: var(--font-family);
     background-color: var(--background-light);
     color: var(--text-primary);
-    display: flex; /* Para el layout de sidebar y contenido */
+    display: flex; /* For sidebar and content layout */
     min-height: 100vh;
 }
 
+/* Buttons */
 .btn {
     font-family: var(--font-family);
     padding: 10px 20px;
@@ -362,7 +363,7 @@ body {
     color: var(--text-primary);
 }
 .btn-secondary:hover {
-    background-color: #c0c8d1; /* Ligeramente más oscuro al pasar el ratón */
+    background-color: #c0c8d1; /* Slightly darker on hover */
 }
 .btn-edit {
     background-color: rgba(79, 195, 247, 0.2);
@@ -380,8 +381,15 @@ body {
 .btn-delete:hover {
     background-color: rgba(239, 83, 80, 0.3);
 }
+.btn-danger {
+    background-color: var(--action-error);
+    color: white;
+}
+.btn-danger:hover {
+    background-color: #d32f2f;
+}
 
-/* Estilos para inputs y selects */
+/* Inputs and Selects */
 input, select {
     width: 100%;
     padding: 12px 15px;
@@ -393,7 +401,7 @@ input, select {
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-/* Notificaciones de la aplicación */
+/* Notifications */
 #app-notification {
     position: fixed;
     top: 25px;
@@ -404,25 +412,25 @@ input, select {
     z-index: 2000;
     opacity: 0;
     transition: opacity 0.5s ease, transform 0.5s ease;
-    transform: translateX(100%); /* Inicialmente fuera de la pantalla */
+    transform: translateX(100%); /* Initially off-screen */
 }
 #app-notification.show {
     opacity: 1;
-    transform: translateX(0); /* Se desliza a la vista */
+    transform: translateX(0); /* Slides into view */
 }
 #app-notification.success { background-color: var(--action-success); }
 #app-notification.error { background-color: var(--action-error); }
-#app-notification.info { background-color: var(--accent-secondary); } /* Para mensajes informativos */
+#app-notification.info { background-color: var(--accent-secondary); } /* For informational messages */
 
 
-/* Sidebar con :hover por defecto para desktop */
+/* Sidebar */
 nav#sidebar {
     width: var(--sidebar-width-collapsed);
     background: var(--background-medium);
     display: flex;
     flex-direction: column;
     transition: width 0.3s ease;
-    position: fixed; /* Fijo en la pantalla */
+    position: fixed; /* Fixed on screen */
     height: 100vh;
     z-index: 1000;
     border-right: 1px solid var(--border-color);
@@ -430,21 +438,6 @@ nav#sidebar {
 nav#sidebar:hover {
     width: var(--sidebar-width-expanded);
 }
-nav#sidebar:hover header {
-    font-size: 1.3rem; /* Título visible al expandir */
-}
-nav#sidebar:hover #user-info {
-    opacity: 1;
-    height: auto; /* Muestra la info del usuario */
-}
-nav#sidebar:hover ul li a .material-symbols-outlined {
-    margin-right: 1rem; /* Espacio entre icono y texto */
-}
-nav#sidebar:hover ul li a span.text {
-    display: inline;
-    opacity: 1; /* Muestra el texto del menú */
-}
-
 nav#sidebar header {
     padding: 1.2rem 1rem;
     font-weight: 700;
@@ -453,7 +446,11 @@ nav#sidebar header {
     background: var(--background-dark);
     white-space: nowrap;
     overflow: hidden;
-    font-size: 0; /* Oculto por defecto */
+    font-size: 0; /* Hidden by default */
+    transition: font-size 0.3s ease;
+}
+nav#sidebar:hover header {
+    font-size: 1.3rem; /* Title visible on expand */
 }
 #user-info {
     padding: 1rem;
@@ -462,7 +459,12 @@ nav#sidebar header {
     opacity: 0;
     height: 0;
     overflow: hidden;
-    transition: opacity 0.3s ease, height 0.3s ease;
+    transition: opacity 0.3s ease, height 0.3s ease, padding 0.3s ease;
+}
+nav#sidebar:hover #user-info {
+    opacity: 1;
+    height: auto; /* Show user info */
+    padding: 1rem;
 }
 #user-logout-btn-sidebar {
     background: transparent;
@@ -479,7 +481,7 @@ nav#sidebar header {
 nav#sidebar ul {
     list-style: none;
     padding: 0;
-    flex-grow: 1; /* Ocupa el espacio restante */
+    flex-grow: 1; /* Occupy remaining space */
 }
 nav#sidebar ul li a {
     display: flex;
@@ -498,25 +500,33 @@ nav#sidebar ul li a:hover {
 nav#sidebar ul li a .material-symbols-outlined {
     font-size: 1.6rem;
     transition: margin-right 0.3s ease, color 0.3s ease;
-    color: var(--accent-secondary); /* Color del icono por defecto */
+    color: var(--accent-secondary); /* Default icon color */
+}
+nav#sidebar:hover ul li a .material-symbols-outlined {
+    margin-right: 1rem; /* Space between icon and text */
 }
 nav#sidebar ul li a:hover .material-symbols-outlined {
-    color: white; /* Color del icono al pasar el ratón */
+    color: white; /* Icon color on hover */
 }
 nav#sidebar ul li a span.text {
     display: none;
     opacity: 0;
     transition: opacity 0.3s ease;
 }
+nav#sidebar:hover ul li a span.text {
+    display: inline;
+    opacity: 1; /* Show menu text */
+}
  
+/* Main Content Area */
 main#content {
     flex-grow: 1;
-    margin-left: var(--sidebar-width-collapsed); /* Espacio para la sidebar colapsada */
+    margin-left: var(--sidebar-width-collapsed); /* Space for collapsed sidebar */
     padding: 2rem 3rem;
     transition: margin-left 0.3s ease;
 }
 nav#sidebar:hover + main#content {
-    margin-left: var(--sidebar-width-expanded); /* Espacio para la sidebar expandida */
+    margin-left: var(--sidebar-width-expanded); /* Space for expanded sidebar */
 }
  
 .main-header {
@@ -531,11 +541,11 @@ nav#sidebar:hover + main#content {
     cursor: pointer;
     font-size: 1.8rem;
     color: var(--text-primary);
-    display: none; /* Oculto por defecto en desktop, visible en mobile */
+    display: none; /* Hidden by default on desktop, visible on mobile */
 }
  
 .content-wrapper {
-    background-color: var(--background-light);
+    background-color: var(--background-container); /* Changed from medium to container for consistency */
     border: 1px solid var(--border-color);
     border-radius: 16px;
     padding: 30px;
@@ -549,23 +559,25 @@ nav#sidebar:hover + main#content {
     flex-wrap: wrap;
     gap: 1rem;
 }
-.users-table {
+.users-table, #tableProducts { /* Apply to both user and product tables */
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
-.users-table th, .users-table td {
+.users-table th, .users-table td, #tableProducts th, #tableProducts td {
     padding: 12px 15px;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
 }
-.users-table thead {
+.users-table thead, #tableProducts thead {
     background: var(--background-dark);
 }
 .action-buttons {
     display: flex;
     gap: 8px;
 }
+
+/* Modals */
 .modal-backdrop {
     position: fixed;
     top: 0;
@@ -573,13 +585,14 @@ nav#sidebar:hover + main#content {
     width: 100%;
     height: 100%;
     background: rgba(0,0,0,0.5);
-    display: none; /* Oculto por defecto */
+    display: none; /* Hidden by default */
     justify-content: center;
     align-items: center;
     z-index: 1500;
+    backdrop-filter: blur(4px); /* Blur effect for modal background */
 }
 .modal-backdrop.active {
-    display: flex; /* Visible cuando está activo */
+    display: flex; /* Visible when active */
 }
 .modal-content {
     background: white;
@@ -589,11 +602,11 @@ nav#sidebar:hover + main#content {
     max-width: 500px;
     position: relative;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    animation: modalFadeIn 0.3s ease-out;
+    animation: slideUp 0.4s ease-out; /* Animation for modal appearance */
 }
-@keyframes modalFadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 .close-modal-btn {
@@ -613,16 +626,15 @@ nav#sidebar:hover + main#content {
     margin-bottom: 15px;
 }
 
-/* Clase para elementos solo de administrador */
+/* Admin-only elements */
 .admin-only {
-    display: none; /* Por defecto oculto, JS lo mostrará si es admin */
+    display: none; /* Hidden by default, JS will show if admin */
 }
-/* Clase para ocultar el campo de rol para no-admins en el modal */
 .role-field-group.hidden-for-non-admin {
     display: none;
 }
 
-/* Modal de Confirmación para eliminar */
+/* Confirm Modal specific styles */
 #confirmModal .modal-content {
     text-align: center;
     padding: 25px;
@@ -648,11 +660,85 @@ nav#sidebar:hover + main#content {
     background-color: #c62828;
 }
 
+/* Inventory specific styles */
+tr.insumo-row {
+    cursor: pointer;
+}
+tr.lote-row td {
+    padding-left: 30px; /* Indent lotes */
+    background-color: #fafbfc; /* Light background for lotes */
+}
 
-/* Media Queries para responsividad */
+/* Dropdown for CSV actions */
+.dropdown-container {
+    position: relative;
+    display: inline-block;
+}
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    background-color: var(--background-light);
+    min-width: 180px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    right: 0; /* Align to the right of the button */
+    top: 100%; /* Position below the button */
+    margin-top: 5px; /* Small gap */
+}
+.dropdown-menu a {
+    color: var(--text-primary);
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    font-size: 0.9rem;
+}
+.dropdown-menu a:hover {
+    background-color: var(--background-medium);
+}
+.dropdown-container.show .dropdown-menu {
+    display: block;
+}
+
+/* Checkbox styling */
+input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 5px;
+    vertical-align: middle;
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    appearance: none; /* Hide default checkbox */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: var(--background-dark);
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+input[type="checkbox"]:checked {
+    background-color: var(--accent-secondary);
+    border-color: var(--accent-secondary);
+    position: relative;
+}
+
+input[type="checkbox"]:checked::before {
+    content: '\2713'; /* Checkmark symbol */
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 14px;
+    color: white;
+}
+
+/* Responsive adjustments */
 @media (max-width: 768px) {
     #menu-toggle-btn { display: inline-flex; }
-    /* Se anula el efecto hover para dar control al botón */
+    /* Override hover effect for sidebar to allow button control */
     nav#sidebar:hover { width: var(--sidebar-width-collapsed); }
     nav#sidebar:hover header { font-size: 0; }
     nav#sidebar:hover #user-info { opacity: 0; height: 0; }
@@ -660,7 +746,7 @@ nav#sidebar:hover + main#content {
     nav#sidebar:hover ul li a span.text { display: none; opacity: 0; }
     nav#sidebar:hover + main#content { margin-left: var(--sidebar-width-collapsed); }
 
-    /* Funcionalidad con click a través de la clase .expanded */
+    /* Expand/collapse sidebar with click via .expanded class */
     nav#sidebar.expanded { width: var(--sidebar-width-expanded); }
     nav#sidebar.expanded header { font-size: 1.3rem; }
     nav#sidebar.expanded #user-info { opacity: 1; height: auto; }
@@ -669,13 +755,27 @@ nav#sidebar:hover + main#content {
     
     main#content { margin-left: 0; padding: 1.5rem; }
     
-    /* Tabla responsiva */
-    .users-table thead { display: none; }
-    .users-table, .users-table tbody, .users-table tr, .users-table td { display: block; width: 100%; }
-    .users-table tr { margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 8px; }
-    .users-table td { text-align: right; padding-left: 50%; position: relative; border: none; border-bottom: 1px solid #f0f0f0; }
-    .users-table td:last-child { border-bottom: none; }
-    .users-table td::before {
+    /* Responsive table */
+    .users-table thead, #tableProducts thead { display: none; }
+    .users-table, .users-table tbody, .users-table tr, .users-table td,
+    #tableProducts, #tableProducts tbody, #tableProducts tr, #tableProducts td {
+        display: block;
+        width: 100%;
+    }
+    .users-table tr, #tableProducts tr {
+        margin-bottom: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+    }
+    .users-table td, #tableProducts td {
+        text-align: right;
+        padding-left: 50%;
+        position: relative;
+        border: none;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .users-table td:last-child, #tableProducts td:last-child { border-bottom: none; }
+    .users-table td::before, #tableProducts td::before {
         content: attr(data-label);
         position: absolute;
         left: 15px;
@@ -683,5 +783,19 @@ nav#sidebar:hover + main#content {
         text-align: left;
         font-weight: 700;
         color: var(--text-primary);
+    }
+    /* Specific adjustment for lotes in mobile view */
+    tr.lote-row td {
+        padding-left: 15px; /* Reset padding for lotes in mobile */
+    }
+    tr.lote-row td table {
+        width: 100%; /* Ensure nested table takes full width */
+    }
+    tr.lote-row td table td {
+        padding-left: 15px; /* Reset padding for lote details */
+        text-align: left; /* Align lote details to left */
+    }
+    tr.lote-row td table td::before {
+        display: none; /* Hide data-label for nested table cells */
     }
 }
