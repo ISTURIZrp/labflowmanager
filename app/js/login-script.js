@@ -4,8 +4,22 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signInWithCustomToken, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { getFirestore, collection, query, where, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
-// Use the global variables provided by the Canvas environment
-const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+// **IMPORTANTE: Se está utilizando la configuración de Firebase hardcodeada que proporcionaste.**
+// En un entorno de Canvas, se recomienda usar la variable global __firebase_config
+// para que la configuración sea inyectada automáticamente y sea más flexible.
+// Si el error "auth/invalid-api-key" persiste, verifica que esta API Key sea correcta
+// en la configuración de tu proyecto de Firebase.
+const firebaseConfig = {
+    apiKey: "AIzaSyCxJOpBEXZUo7WrAqDTrlJV_2kJBsL8Ym0",
+    authDomain: "labflow-manager.firebaseapp.com",
+    projectId: "labflow-manager",
+    storageBucket: "labflow-manager.firebasestorage.app",
+    messagingSenderId: "742212306654",
+    appId: "1:742212306654:web:a53bf890fc63cd5d05e44f",
+    measurementId: "G-YVZDBCJR3B"
+};
+
+// La variable initialAuthToken sigue siendo útil para la persistencia de sesión en Canvas.
 const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
 const app = initializeApp(firebaseConfig);
