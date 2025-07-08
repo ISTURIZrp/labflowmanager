@@ -146,8 +146,8 @@ onAuthStateChanged(auth, async (user) => {
     } else {
         // No user is signed in. Redirect to the login page.
         console.log('onAuthStateChanged (script.js): No user logged in. Redirecting to login page.');
-        // The path from 'app/pages/' (where home.html is) to 'index.html' (in root) is '../../index.html'
-        // Ensure this redirection only happens if not already on the login page to prevent loops
+        // La ruta desde 'app/html/' (donde home.html está) a 'index.html' (en la raíz) es '../../index.html'
+        // Asegúrate de que esta redirección solo ocurra si no estás ya en la página de login para evitar bucles.
         if (!currentPath.includes('/index.html') && !currentPath.endsWith('/')) {
              window.location.href = '../../index.html';
         }
