@@ -4,12 +4,209 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>LabFlow Manager - Panel de Control</title>
+    <!-- Enlaces a fuentes e iconos -->
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="../css/styles.css">
+    <!-- Enlace a tu archivo CSS general. La ruta es relativa desde app/pages/ -->
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        /* Estilos específicos para home.html si no están en style.css */
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--background-body);
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .top-bar {
+            background-color: var(--background-container);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px var(--shadow-color);
+        }
+
+        .top-bar .app-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0; /* Override login page margin */
+        }
+
+        .top-bar .app-brand .logo-icon {
+            font-size: 2.5rem; /* Smaller logo for top bar */
+        }
+
+        .top-bar .app-brand h1 {
+            font-size: 1.8rem; /* Smaller title for top bar */
+            /* Gradient already defined in :root, just ensure it applies */
+        }
+
+        .user-info-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background-color: var(--background-body);
+            border-radius: 25px;
+            padding: 8px 15px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .user-info-box:hover {
+            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .user-info-box .user-details {
+            text-align: right;
+            line-height: 1.2;
+        }
+
+        .user-info-box .user-details div {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .user-info-box .user-details small {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .user-info-box .mdi-account-circle-outline {
+            font-size: 2.2rem;
+            color: var(--accent-secondary);
+        }
+
+        .page-container {
+            flex-grow: 1;
+            padding: 30px;
+            max-width: 1200px;
+            margin: 30px auto;
+            background-color: var(--background-container);
+            border-radius: 20px;
+            box-shadow: 0 5px 20px var(--shadow-color);
+        }
+
+        .header-dashboard {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header-dashboard h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--accent-secondary), var(--accent-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .header-dashboard p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+        }
+
+        .tiles-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 25px;
+            justify-content: center;
+        }
+
+        .tile {
+            background-color: var(--background-body);
+            border: 1px solid var(--border-color);
+            border-radius: 15px;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .tile:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(79, 195, 247, 0.3);
+            background-color: var(--accent-glow-start);
+            color: white; /* Change text color on hover for better contrast */
+        }
+
+        .tile i {
+            font-size: 3.5rem;
+            color: var(--accent-secondary);
+            margin-bottom: 15px;
+            transition: color 0.3s ease;
+        }
+
+        .tile:hover i {
+            color: white; /* Change icon color on hover */
+        }
+
+        /* Specific style for logout button tile */
+        #logout-button {
+            background: linear-gradient(45deg, var(--action-error), #d32f2f);
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        #logout-button:hover {
+            background: linear-gradient(45deg, #d32f2f, #c62828);
+            box-shadow: 0 10px 25px rgba(239, 83, 80, 0.3);
+            transform: translateY(-5px);
+        }
+
+        #logout-button i {
+            color: white; /* Ensure icon is white for logout button */
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                gap: 15px;
+            }
+            .page-container {
+                padding: 20px;
+                margin: 20px auto;
+            }
+            .header-dashboard h1 {
+                font-size: 2rem;
+            }
+            .header-dashboard p {
+                font-size: 1rem;
+            }
+            .tiles-container {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 15px;
+            }
+            .tile {
+                padding: 20px;
+                font-size: 1rem;
+            }
+            .tile i {
+                font-size: 2.8rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
@@ -71,6 +268,7 @@
 
     <div id="app-notification"></div>
 
+    <!-- Script para la lógica general de la aplicación -->
     <script type="module" src="../js/script.js"></script>
 </body>
 </html>
