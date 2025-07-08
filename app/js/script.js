@@ -1,20 +1,20 @@
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
-// Si necesitas Firestore o cualquier otro servicio en tus páginas de la app, impórtalos aquí también
+// app/js/script.js
 
-const firebaseConfig = {
-    apiKey: "AIzaSyCxJOpBEXZUo7WrAqDTrlJV_2kJBsL8Ym0",
-    authDomain: "labflow-manager.firebaseapp.com",
-    projectId: "labflow-manager",
-    storageBucket: "labflow-manager.appspot.com",
-    messagingSenderId: "742212306654",
-    appId: "1:742212306654:web:a53bf890fc63cd5d05e44f"
-};
+// Import necessary Firebase modules
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, onAuthStateChanged, signOut, signInAnonymously, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
+// Use the global variables provided by the Canvas environment for Firebase configuration
+const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null; // Also get the initial auth token
+
+// Initialize Firebase app and services
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-// Referencias a elementos del DOM
+// DOM element references
 const pageContainer = document.getElementById('page-container');
 const logoutButton = document.getElementById('logout-button');
 const notificationDiv = document.getElementById('app-notification');
@@ -23,72 +23,148 @@ const userNameDisplay = document.getElementById('user-name-display');
 const userRoleDisplay = document.getElementById('user-role-display');
 
 /**
- * Muestra una notificación en la interfaz de usuario.
- * @param {string} message - El mensaje a mostrar.
- * @param {string} type - El tipo de notificación ('info', 'success', 'error').
+ * Displays a notification in the UI.
+ * @param {string} message - The message to display.
+ * @param {string} type - The type of notification ('info', 'success', 'error').
  */
 function showNotification(message, type = 'info') {
-    notificationDiv.textContent = message;
-    notificationDiv.className = 'show ' + type;
-    // La notificación desaparecerá después de 3 segundos
-    setTimeout(() => { notificationDiv.className = ''; }, 3000);
+    if (notificationDiv) {
+        notificationDiv.textContent = message;
+        notificationDiv.className = 'show ' + type; // Apply CSS classes for styling
+        notificationDiv.style.display = 'block'; // Ensure it's visible
+
+        // Set background and text color based on type
+        if (type === 'success') {
+            notificationDiv.style.backgroundColor = '#d4edda';
+            notificationDiv.style.color = '#155724';
+        } else if (type === 'error') {
+            notificationDiv.style.backgroundColor = '#f8d7da';
+            notificationDiv.style.color = '#721c24';
+        } else { // info or default
+            notificationDiv.style.backgroundColor = '#e2e3e5';
+            notificationDiv.style.color = '#383d41';
+        }
+
+        // Hide notification after 3 seconds
+        setTimeout(() => {
+            notificationDiv.className = ''; // Remove classes
+            notificationDiv.style.display = 'none'; // Hide element
+            notificationDiv.textContent = ''; // Clear text
+        }, 3000);
+    } else {
+        console.warn("Notification div not found. Ensure an element with id='app-notification' exists.");
+    }
 }
 
-// Escucha los cambios en el estado de autenticación de Firebase
-onAuthStateChanged(auth, async (user) => {
-    if (user) {
-        // Usuario ha iniciado sesión
-        const displayName = user.displayName || user.email; // Muestra el nombre o el email
-        let displayRole = 'Usuario'; // Rol por defecto
+/**
+ * Fetches user data from Firestore and updates the UI.
+ * @param {string} uid - The Firebase User ID.
+ */
+async function fetchAndDisplayUserData(uid) {
+    try {
+        // IMPORTANT: Adjust this Firestore path according to your actual data structure.
+        // This example assumes user profiles are stored under /artifacts/{appId}/users/{userId}/profile/userProfile
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const userDocRef = doc(db, `artifacts/${appId}/users/${uid}/profile`, 'userProfile');
 
-        // Opcional: Si necesitas el rol real (Custom Claims), puedes obtenerlo así:
-        // Ten en cuenta que los Custom Claims solo se actualizan cuando el token
-        // del usuario se refresca, lo que puede no ser inmediato.
-        try {
-            const idTokenResult = await user.getIdTokenResult();
-            if (idTokenResult.claims.role) {
-                displayRole = idTokenResult.claims.role;
-            }
-        } catch (error) {
-            console.warn("No se pudo obtener el rol del usuario de los claims:", error);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            userNameDisplay.textContent = userData.name || userData.username || 'Usuario';
+            userRoleDisplay.textContent = userData.role || 'Rol no definido';
+            console.log('User data loaded from Firestore:', userData);
+        } else {
+            console.log("No user profile found in Firestore for UID:", uid);
+            userNameDisplay.textContent = 'Usuario Desconocido';
+            userRoleDisplay.textContent = 'Sin rol';
         }
-        
-        userNameDisplay.textContent = displayName;
-        userRoleDisplay.textContent = displayRole;
+    } catch (error) {
+        console.error("Error fetching user data from Firestore:", error);
+        userNameDisplay.textContent = 'Error al cargar';
+        userRoleDisplay.textContent = 'Error';
+    }
+}
 
-        // Hace visibles los elementos de la página después de cargar la info del usuario
-        pageContainer.classList.add('visible');
-        userInfoBox.classList.add('visible');
+// Listen for Firebase authentication state changes
+onAuthStateChanged(auth, async (user) => {
+    console.log('onAuthStateChanged (script.js): User state changed. Current user:', user ? user.uid : 'null');
+    const currentPath = window.location.pathname;
+    console.log('onAuthStateChanged (script.js): Current URL path:', currentPath);
+
+    if (user) {
+        // User is signed in.
+        console.log('onAuthStateChanged (script.js): User is logged in. UID:', user.uid);
+        fetchAndDisplayUserData(user.uid);
+
+        // Make page elements visible after user data is loaded (if they were hidden by default)
+        if (pageContainer) pageContainer.classList.add('visible');
+        if (userInfoBox) userInfoBox.classList.add('visible');
+
+        // Optional: Get custom claims for roles (requires server-side setup to set claims)
+        // try {
+        //     const idTokenResult = await user.getIdTokenResult();
+        //     if (idTokenResult.claims.role) {
+        //         userRoleDisplay.textContent = idTokenResult.claims.role;
+        //     }
+        // } catch (error) {
+        //     console.warn("Could not get user role from custom claims:", error);
+        // }
 
     } else {
-        // No hay usuario logueado, redirige a la página de inicio de sesión
-        // Desde 'app/pages/home.html', necesitamos subir dos niveles para llegar a 'index.html'
-        window.location.href = '../../index.html'; 
+        // No user is signed in. Redirect to the login page.
+        console.log('onAuthStateChanged (script.js): No user logged in. Redirecting to login page.');
+        // The path from 'app/pages/' (where home.html is) to 'index.html' (in root) is '../../index.html'
+        // Ensure this redirection only happens if not already on the login page to prevent loops
+        if (!currentPath.includes('/index.html') && !currentPath.endsWith('/')) {
+             window.location.href = '../../index.html';
+        }
     }
 });
 
-// Manejador del botón de cerrar sesión
+// Handle logout button click
 async function handleLogout() {
-    if (logoutButton) { // Asegurarse de que el botón existe antes de deshabilitarlo
-        logoutButton.disabled = true;
+    if (logoutButton) {
+        logoutButton.disabled = true; // Disable button during logout process
     }
     showNotification('Cerrando sesión...', 'info');
     try {
         await signOut(auth);
-        // onAuthStateChanged se encargará de la redirección a index.html
+        console.log('User signed out successfully.');
+        // Redirection to index.html is handled by the onAuthStateChanged listener
     } catch (error) {
-        console.error('Error al cerrar sesión:', error);
-        showNotification(`Error: ${error.message}`, 'error');
+        console.error('Error signing out:', error);
+        showNotification(`Error al cerrar sesión: ${error.message}`, 'error');
         if (logoutButton) {
-            logoutButton.disabled = false; // Habilitar el botón si hay un error
+            logoutButton.disabled = false; // Re-enable button if logout fails
         }
     }
 }
 
-// Asigna el evento click al botón de cerrar sesión
+// Assign click event listener to the logout button
 if (logoutButton) {
     logoutButton.addEventListener('click', handleLogout);
+} else {
+    console.warn("Logout button not found. Ensure an element with id='logout-button' exists in home.html.");
 }
 
-// --- Aquí puedes añadir más lógica específica de la aplicación que sea común a varias páginas ---
-// Por ejemplo, funciones para manipular el DOM, interactuar con otros módulos de Firebase, etc.
+// Initial authentication check on page load (useful for direct access to home.html)
+// This will trigger the onAuthStateChanged listener.
+// If initialAuthToken is present, attempt to sign in with it for persistence.
+if (initialAuthToken) {
+    console.log('Attempting to sign in with initialAuthToken in script.js...');
+    signInWithCustomToken(auth, initialAuthToken)
+        .then(() => console.log('Signed in with custom token successfully in script.js.'))
+        .catch((error) => {
+            console.error("Error signing in with custom token in script.js:", error);
+            // If custom token fails, try anonymous sign-in (or force login)
+            signInAnonymously(auth)
+                .then(() => console.log('Signed in anonymously in script.js after custom token failure.'))
+                .catch(anonError => console.error("Error signing in anonymously in script.js:", anonError));
+        });
+} else {
+    console.log('No initialAuthToken provided in script.js. Attempting anonymous sign-in.');
+    signInAnonymously(auth)
+        .then(() => console.log('Signed in anonymously in script.js.'))
+        .catch(anonError => console.error("Error signing in anonymously in script.js:", anonError));
+}
