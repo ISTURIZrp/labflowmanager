@@ -1,6 +1,5 @@
 // app/js/script.js
 
-// Import necessary Firebase modules
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut, signInAnonymously, signInWithCustomToken } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
@@ -30,27 +29,46 @@ const userRoleDisplay = document.getElementById('user-role-display');
 function showNotification(message, type = 'info') {
     if (notificationDiv) {
         notificationDiv.textContent = message;
-        notificationDiv.className = 'show ' + type; // Apply CSS classes for styling
-        notificationDiv.style.display = 'block'; // Ensure it's visible
+        // Basic styling for the notification
+        notificationDiv.style.padding = '10px 20px';
+        notificationDiv.style.borderRadius = '8px';
+        notificationDiv.style.position = 'fixed';
+        notificationDiv.style.top = '20px';
+        notificationDiv.style.left = '50%';
+        notificationDiv.style.transform = 'translateX(-50%)';
+        notificationDiv.style.zIndex = '1000';
+        notificationDiv.style.textAlign = 'center';
+        notificationDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+        notificationDiv.style.fontWeight = 'bold';
+        notificationDiv.style.opacity = '0'; // Start hidden for fade-in
+        notificationDiv.style.transition = 'opacity 0.3s ease-in-out';
 
-        // Set background and text color based on type
         if (type === 'success') {
-            notificationDiv.style.backgroundColor = '#d4edda';
-            notificationDiv.style.color = '#155724';
+            notificationDiv.style.backgroundColor = '#d4edda'; // Light green
+            notificationDiv.style.color = '#155724'; // Dark green text
         } else if (type === 'error') {
-            notificationDiv.style.backgroundColor = '#f8d7da';
-            notificationDiv.style.color = '#721c24';
+            notificationDiv.style.backgroundColor = '#f8d7da'; // Light red
+            notificationDiv.style.color = '#721c24'; // Dark red text
         } else { // info or default
-            notificationDiv.style.backgroundColor = '#e2e3e5';
-            notificationDiv.style.color = '#383d41';
+            notificationDiv.style.backgroundColor = '#e2e3e5'; // Light grey
+            notificationDiv.style.color = '#383d41'; // Dark grey text
         }
 
-        // Hide notification after 3 seconds
+        notificationDiv.style.display = 'block'; // Make it visible
         setTimeout(() => {
-            notificationDiv.className = ''; // Remove classes
-            notificationDiv.style.display = 'none'; // Hide element
-            notificationDiv.textContent = ''; // Clear text
-        }, 3000);
+            notificationDiv.style.opacity = '1'; // Fade in
+        }, 10); // Small delay to allow display:block to apply
+
+        console.log('Temporary notification displayed:', message, type);
+
+        setTimeout(() => {
+            notificationDiv.style.opacity = '0'; // Fade out
+            setTimeout(() => {
+                notificationDiv.style.display = 'none'; // Hide after fade out
+                notificationDiv.textContent = ''; // Clear text
+                console.log('Temporary notification hidden.');
+            }, 300); // Wait for fade out transition
+        }, 3000); // Notification visible for 3 seconds
     } else {
         console.warn("Notification div not found. Ensure an element with id='app-notification' exists.");
     }
@@ -160,11 +178,11 @@ if (initialAuthToken) {
             // If custom token fails, try anonymous sign-in (or force login)
             signInAnonymously(auth)
                 .then(() => console.log('Signed in anonymously in script.js after custom token failure.'))
-                .catch(anonError => console.error("Error signing in anonymously in script.js:", anonError));
+                .catch(anonError => console.error("Error al iniciar sesión anónimamente:", anonError));
         });
 } else {
     console.log('No initialAuthToken provided in script.js. Attempting anonymous sign-in.');
     signInAnonymously(auth)
-        .then(() => console.log('Signed in anonymously in script.js.'))
-        .catch(anonError => console.error("Error signing in anonymously in script.js:", anonError));
+        .then(() => console.log('Signed in anonymously.'))
+        .catch(anonError => console.error("Error al iniciar sesión anónimamente:", anonError));
 }
