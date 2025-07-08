@@ -21,8 +21,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-// La API_ENDPOINT se mantiene como referencia, pero las llamadas directas a la API han sido eliminadas temporalmente.
-const API_ENDPOINT = '/.netlify/functions/users'; 
+const API_ENDPOINT = '/.netlify/functions/users'; // URL de tu función de Netlify
 
 const elements = {
     sidebar: document.getElementById('sidebar'),
@@ -52,9 +51,9 @@ const elements = {
     confirmDeleteBtn: document.getElementById('confirm-delete-btn')
 };
 
-let isAdmin = false; // Estado global para el rol de administrador (por ahora, se asume false)
+let isAdmin = false; // Estado global para el rol de administrador
 let currentUserUid = null; // UID del usuario actualmente logueado
-let allUsers = []; // Para almacenar los usuarios y facilitar la edición (ahora con datos de ejemplo)
+let allUsers = []; // Para almacenar los usuarios y facilitar la edición
 let userToDeleteUid = null; // Para almacenar el UID del usuario a eliminar temporalmente
 
 // Función para mostrar notificaciones
@@ -68,13 +67,18 @@ function showNotification(message, type = 'info') {
 // Abre el modal de usuario (para añadir o editar)
 function openUserModal(user = null) {
     elements.userForm.reset(); // Limpia el formulario
-    elements.passwordField.placeholder = "Contraseña (requerida para nuevos usuarios)";
+    elements.passwordField.placeholder = "Dejar vacío para no cambiar";
     elements.passwordField.required = !user; // La contraseña es requerida solo para nuevos usuarios
 
-    // Por ahora, el campo de rol siempre es visible y editable para demostración de la UI.
-    // La lógica de ocultar/mostrar basada en isAdmin se ha simplificado.
-    elements.roleFieldGroup.classList.remove('hidden-for-non-admin');
-    elements.roleField.disabled = false;
+    // Controla la visibilidad y editabilidad del campo de rol
+    // Esta lógica ahora se basa en la variable `isAdmin` real.
+    if (isAdmin) {
+        elements.roleFieldGroup.classList.remove('hidden-for-non-admin');
+        elements.roleField.disabled = false;
+    } else {
+        elements.roleFieldGroup.classList.add('hidden-for-non-admin');
+        elements.roleField.disabled = true; 
+    }
 
     if (user) {
         elements.userModalTitle.textContent = 'Editar Usuario';
@@ -83,6 +87,12 @@ function openUserModal(user = null) {
         elements.emailField.value = user.email;
         elements.emailField.disabled = true; // No permitir cambiar el email al editar
         elements.roleField.value = user.role || 'usuario';
+
+        // Si el usuario actual no es admin y está editando su propio perfil, el campo de rol también debe estar deshabilitado.
+        if (!isAdmin) {
+            elements.roleField.disabled = true;
+        }
+
     } else {
         elements.userModalTitle.textContent = 'Añadir Nuevo Usuario';
         elements.userIdField.value = '';
@@ -109,56 +119,83 @@ function closeConfirmModal() {
     userToDeleteUid = null; // Limpia el UID almacenado
 }
 
-// --- Lógica de Datos (Simplificada con datos de ejemplo) ---
-// Función para renderizar la tabla de usuarios con datos de ejemplo
-async function fetchAndRenderUsers() {
-    elements.usersTableBody.innerHTML = `<tr><td colspan="5">Cargando usuarios de ejemplo...</td></tr>`;
-
-    // Datos de ejemplo para simular la carga de usuarios
-    const dummyUsers = [
-        { uid: "user123", displayName: "Juan Pérez", email: "juan.perez@example.com", role: "usuario", metadata: { lastSignInTime: Date.now() - 86400000 } },
-        { uid: "admin456", displayName: "Admin Principal", email: "admin@example.com", role: "administrador", metadata: { lastSignInTime: Date.now() - 3600000 } },
-        { uid: "tech789", displayName: "María Técnica", email: "maria.t@example.com", role: "tecnico", metadata: { lastSignInTime: Date.now() - 7200000 } }
-    ];
-
-    // Simula una pequeña demora para la "carga"
-    await new Promise(resolve => setTimeout(resolve, 500)); 
-
-    allUsers = dummyUsers; // Almacena los usuarios de ejemplo
-
-    elements.usersTableBody.innerHTML = ''; // Limpia la tabla
-
-    if (allUsers.length === 0) {
-        elements.usersTableBody.innerHTML = `<tr><td colspan="5">No hay usuarios de ejemplo registrados.</td></tr>`;
-        return;
+// --- Lógica de Datos (Conexión a API real) ---
+// Función genérica para llamar a tu API de Netlify Functions
+async function callApi(method, body) {
+    const user = auth.currentUser;
+    if (!user) {
+        // Si no hay usuario logueado, redirige a la página de inicio de sesión
+        // La ruta desde app/html/ a index.html es ../../index.html
+        window.location.href = '../../index.html'; 
+        throw new Error("Usuario no autenticado."); // Lanza un error para detener la ejecución
     }
+    const token = await user.getIdToken(); // Obtiene el token de autenticación para la API
 
-    allUsers.forEach(user => {
-        const row = document.createElement('tr');
-        const lastSignIn = user.metadata?.lastSignInTime 
-            ? new Date(user.metadata.lastSignInTime).toLocaleDateString() 
-            : 'Nunca';
-        
-        // Los botones de acción se muestran para todos los usuarios de ejemplo.
-        // La lógica de permisos real se implementará con tu API de backend.
-        let actionButtons = `
-            <button class="btn btn-edit" data-uid="${user.uid}">Editar</button>
-            <button class="btn btn-delete" data-uid="${user.uid}" data-email="${user.email}">Eliminar</button>
-        `;
-
-        row.innerHTML = `
-            <td data-label="Nombre">${user.displayName || 'N/A'}</td> 
-            <td data-label="Email">${user.email}</td>
-            <td data-label="Rol">${user.role || 'Usuario'}</td>
-            <td data-label="Último Acceso">${lastSignIn}</td>
-            <td data-label="Acciones" class="action-buttons">${actionButtons}</td>
-        `;
-        elements.usersTableBody.appendChild(row);
-    });
-    showNotification('Usuarios de ejemplo cargados.', 'info');
+    const options = {
+        method,
+        headers: { 
+            'Content-Type': 'application/json', 
+            'Authorization': `Bearer ${token}` 
+        },
+    };
+    if (body) options.body = JSON.stringify(body);
+    
+    const response = await fetch(API_ENDPOINT, options);
+    const responseData = await response.json(); // Aquí es donde se espera el JSON
+    if (!response.ok) {
+        // Si la respuesta no es OK, lanza un error con el mensaje de la API
+        throw new Error(responseData.message || `Error en la solicitud: ${response.status}`);
+    }
+    return responseData;
 }
 
-// Maneja el envío del formulario de usuario (crear/actualizar) - Lógica simplificada
+// Función para renderizar la tabla de usuarios con datos reales de la API
+async function fetchAndRenderUsers() {
+    elements.usersTableBody.innerHTML = `<tr><td colspan="5">Cargando usuarios...</td></tr>`;
+    try {
+        const users = await callApi('GET'); // Llama a tu función de Netlify
+        allUsers = users; // Almacena los usuarios reales
+        elements.usersTableBody.innerHTML = '';
+
+        if (users.length === 0) {
+            elements.usersTableBody.innerHTML = `<tr><td colspan="5">No hay usuarios registrados.</td></tr>`;
+            return;
+        }
+
+        users.forEach(user => {
+            const row = document.createElement('tr');
+            const lastSignIn = user.metadata?.lastSignInTime 
+                ? new Date(isNaN(user.metadata.lastSignInTime) ? user.metadata.lastSignInTime : parseInt(user.metadata.lastSignInTime)).toLocaleDateString() 
+                : 'Nunca';
+            
+            let actionButtons = '';
+            // Solo muestra los botones de acción si el usuario actual es administrador
+            // O si el usuario está editando su propio perfil (solo botón de editar)
+            if (isAdmin || user.uid === currentUserUid) {
+                actionButtons += `<button class="btn btn-edit" data-uid="${user.uid}">Editar</button>`;
+                if (isAdmin && user.uid !== currentUserUid) { // Solo admin puede eliminar a otros
+                    actionButtons += `<button class="btn btn-delete" data-uid="${user.uid}" data-email="${user.email}">Eliminar</button>`;
+                }
+            }
+
+            row.innerHTML = `
+                <td data-label="Nombre">${user.displayName || user.full_name || 'N/A'}</td> 
+                <td data-label="Email">${user.email}</td>
+                <td data-label="Rol">${user.role || 'Usuario'}</td>
+                <td data-label="Último Acceso">${lastSignIn}</td>
+                <td data-label="Acciones" class="action-buttons">${actionButtons}</td>
+            `;
+            elements.usersTableBody.appendChild(row);
+        });
+        showNotification('Usuarios cargados correctamente.', 'success');
+    } catch (error) {
+        showNotification(`Error al cargar usuarios: ${error.message}`, 'error');
+        elements.usersTableBody.innerHTML = `<tr><td colspan="5">Error al cargar la lista de usuarios. Verifica la consola para más detalles.</td></tr>`;
+        console.error("Error fetching users:", error);
+    }
+}
+
+// Maneja el envío del formulario de usuario (crear/actualizar)
 async function handleFormSubmit(e) {
     e.preventDefault();
     elements.saveUserBtn.disabled = true;
@@ -166,27 +203,56 @@ async function handleFormSubmit(e) {
     const isUpdate = elements.userIdField.value !== '';
     const actionMessage = isUpdate ? 'actualizado' : 'creado';
 
-    showNotification(`Usuario ${actionMessage} (simulado) correctamente.`, 'success');
-    // Aquí es donde en el futuro harías la llamada a tu API de Netlify Functions
-    // await callApi('POST', { action: isUpdate ? 'update' : 'create', ...datosDelFormulario });
+    // Validación básica
+    if (!elements.usernameField.value || !elements.emailField.value || (!isUpdate && !elements.passwordField.value)) {
+        showNotification('Por favor, complete todos los campos requeridos.', 'error');
+        elements.saveUserBtn.disabled = false;
+        return;
+    }
+
+    const body = {
+        action: isUpdate ? 'update' : 'create', 
+        uid: elements.userIdField.value,
+        username: elements.usernameField.value, 
+        email: elements.emailField.value,
+        password: elements.passwordField.value,
+        role: elements.roleField.value,
+    };
     
-    // Por ahora, solo recargar los datos de ejemplo para simular un cambio
-    await fetchAndRenderUsers(); 
-    closeUserModal();
-    elements.saveUserBtn.disabled = false;
+    try {
+        await callApi('POST', body); // Llama a tu función de Netlify para crear/actualizar
+        showNotification(`Usuario ${actionMessage} correctamente.`, 'success');
+        await fetchAndRenderUsers(); // Vuelve a cargar la tabla con datos reales
+        closeUserModal();
+    } catch (error) {
+        showNotification(`Error: ${error.message}`, 'error');
+        console.error("Error saving user:", error);
+    } finally {
+        elements.saveUserBtn.disabled = false;
+    }
 }
 
-// --- Verificación de autenticación y roles (Básica) ---
+// --- Verificación de autenticación y roles ---
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUserUid = user.uid; // Guarda el UID del usuario logueado
         elements.userEmailDisplaySidebar.textContent = user.email;
-        
-        // Por ahora, no se verifica el rol de administrador dinámicamente desde claims.
-        // La variable `isAdmin` se mantiene en `false` por defecto en este script simplificado.
-        // Los elementos `.admin-only` en el HTML no se ocultarán/mostrarán automáticamente por JS aquí.
-        
-        await fetchAndRenderUsers(); // Carga los usuarios de ejemplo
+        try {
+            const idTokenResult = await user.getIdTokenResult();
+            // Establece la variable global isAdmin basada en los claims reales
+            isAdmin = idTokenResult.claims.role === 'administrador';
+
+            // Oculta/muestra elementos basados en el rol de administrador
+            elements.adminOnlyElements.forEach(el => {
+                el.style.display = isAdmin ? '' : 'none';
+            });
+            
+            await fetchAndRenderUsers(); // Carga los usuarios reales
+        } catch (error) {
+            showNotification("Error al verificar permisos. Redirigiendo...", 'error');
+            console.error("Error al obtener claims de ID:", error);
+            await signOut(auth); // Cerrar sesión en caso de error de permisos
+        }
     } else {
         // Si no hay usuario logueado, redirige a la página de inicio de sesión
         window.location.href = '../../index.html';
@@ -216,9 +282,19 @@ elements.usersTableBody.addEventListener('click', async (e) => {
     const email = targetButton.dataset.email;
 
     if (targetButton.classList.contains('btn-edit')) {
+        // Solo un admin o el propio usuario pueden editar
+        if (!isAdmin && uid !== currentUserUid) {
+            showNotification('No tienes permiso para editar este usuario.', 'error');
+            return;
+        }
         const userToEdit = allUsers.find(u => u.uid === uid);
         if (userToEdit) openUserModal(userToEdit);
     } else if (targetButton.classList.contains('btn-delete')) {
+        // Solo un admin puede eliminar a otros usuarios (no a sí mismo)
+        if (!isAdmin || uid === currentUserUid) {
+            showNotification('No tienes permiso para eliminar este usuario o no puedes eliminar tu propia cuenta.', 'error');
+            return;
+        }
         openConfirmModal(uid, email);
     }
 });
@@ -227,12 +303,15 @@ elements.usersTableBody.addEventListener('click', async (e) => {
 elements.cancelDeleteBtn.addEventListener('click', closeConfirmModal);
 elements.confirmDeleteBtn.addEventListener('click', async () => {
     if (userToDeleteUid) {
-        showNotification(`Usuario ${userToDeleteUid} eliminado (simulado).`, 'success');
-        // Aquí es donde en el futuro harías la llamada a tu API de Netlify Functions para eliminar
-        // await callApi('POST', { action: 'delete', uid: userToDeleteUid });
-        
-        // Por ahora, solo recargar los datos de ejemplo (el usuario no se eliminará realmente)
-        await fetchAndRenderUsers(); 
-        closeConfirmModal();
+        try {
+            await callApi('POST', { action: 'delete', uid: userToDeleteUid }); // Llama a tu función de Netlify para eliminar
+            showNotification('Usuario eliminado correctamente.', 'success');
+            await fetchAndRenderUsers(); // Vuelve a cargar la tabla
+            closeConfirmModal();
+        } catch (error) {
+            showNotification(`Error al eliminar: ${error.message}`, 'error');
+            console.error("Error deleting user:", error);
+            closeConfirmModal(); // Cierra el modal incluso si hay error
+        }
     }
 });
