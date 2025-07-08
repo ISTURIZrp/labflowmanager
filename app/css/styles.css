@@ -1,68 +1,255 @@
-/* app/css/styles.css */
+/* app/css/style.css */
 
+/* Variables CSS para una gestión de colores y fuentes centralizada */
 :root {
-    --background-body: #f0f4f8;
-    --background-container: #ffffff;
-    --text-primary: #2c3e50;
-    --text-secondary: #607d8b;
-    --border-color: #d1d9e6;
-    --shadow-color: rgba(44, 62, 80, 0.15);
-    --accent-glow-start: rgba(129, 212, 250, 0.5);
-    --accent-glow-end: rgba(79, 195, 247, 0.5);
-    --accent-primary: #81d4fa;
-    --accent-secondary: #4fc3f7;
-    --action-error: #ef5350;
-    --font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    --background-body: #f0f4f8; /* Color de fondo principal del cuerpo */
+    --background-container: #ffffff; /* Color de fondo para contenedores como el formulario de login y la barra superior */
+    --text-primary: #2c3e50; /* Color de texto principal */
+    --text-secondary: #607d8b; /* Color de texto secundario */
+    --border-color: #d1d9e6; /* Color para bordes */
+    --shadow-color: rgba(44, 62, 80, 0.15); /* Color para sombras */
+    --accent-glow-start: rgba(129, 212, 250, 0.5); /* Inicio del color de acento para efectos de brillo */
+    --accent-glow-end: rgba(79, 195, 247, 0.5); /* Fin del color de acento para efectos de brillo */
+    --accent-primary: #81d4fa; /* Color de acento primario */
+    --accent-secondary: #4fc3f7; /* Color de acento secundario */
+    --action-error: #ef5350; /* Color para mensajes de error o acciones de peligro */
+    --font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; /* Familia de fuentes principal */
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+/* Reseteo básico de estilos para todos los elementos */
+* {
+    box-sizing: border-box; /* Incluye padding y borde en el ancho/alto total */
+    margin: 0; /* Elimina márgenes por defecto */
+    padding: 0; /* Elimina paddings por defecto */
+}
 
+/* Estilos para el cuerpo de la página (aplicables a login y home) */
 body {
-    font-family: var(--font-family);
-    background-color: var(--background-body);
+    font-family: var(--font-family); /* Aplica la fuente definida */
+    background-color: var(--background-body); /* Aplica el color de fondo */
     background-image:
         radial-gradient(ellipse at 10% 90%, var(--accent-glow-start), transparent 50%),
         radial-gradient(ellipse at 90% 10%, var(--accent-glow-end), transparent 50%);
-    color: var(--text-primary);
+    color: var(--text-primary); /* Aplica el color de texto principal */
+    min-height: 100vh; /* Ocupa al menos el 100% del alto de la ventana */
+    animation: fadeIn 1s ease-in-out; /* Animación de aparición */
+    /* Flexbox para centrar contenido en el login, o para layout de app en home */
     display: flex;
-    min-height: 100vh;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-    animation: fadeIn 1s ease-in-out;
+    flex-direction: column; /* Por defecto, apila elementos verticalmente */
 }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+/* Keyframes para la animación de aparición del cuerpo */
+@keyframes fadeIn {
+    from { opacity: 0; } /* Empieza completamente transparente */
+    to { opacity: 1; } /* Termina completamente visible */
+}
+
+/* Estilos específicos para el contenedor de login (solo en index.html) */
 .login-container {
-    background-color: var(--background-container);
-    border: 1px solid var(--border-color);
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 10px 40px var(--shadow-color);
-    max-width: 450px;
-    width: 100%;
-    text-align: center;
-    animation: slideUp 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+    background-color: var(--background-container); /* Fondo blanco */
+    border: 1px solid var(--border-color); /* Borde suave */
+    border-radius: 20px; /* Bordes redondeados */
+    padding: 40px; /* Espaciado interno */
+    box-shadow: 0 10px 40px var(--shadow-color); /* Sombra pronunciada */
+    max-width: 450px; /* Ancho máximo */
+    width: 100%; /* Ocupa todo el ancho disponible hasta el max-width */
+    text-align: center; /* Centra el texto dentro del contenedor */
+    animation: slideUp 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); /* Animación de deslizamiento hacia arriba */
+    /* Centrado para la página de login */
+    margin: auto; /* Centra el contenedor en el body flex */
 }
-@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-.app-brand {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 30px;
+/* Keyframes para la animación de deslizamiento hacia arriba del contenedor */
+@keyframes slideUp {
+    from { transform: translateY(40px); opacity: 0; } /* Empieza más abajo y transparente */
+    to { transform: translateY(0); opacity: 1; } /* Termina en su posición y visible */
 }
+
+/* Estilos para la sección de la marca de la aplicación (logo y título) */
+.app-brand {
+    display: flex; /* Usa flexbox para alinear elementos */
+    align-items: center; /* Centra verticalmente los elementos hijos */
+    gap: 10px; /* Espacio entre el logo y el título */
+}
+/* Ajuste para el app-brand en la página de login */
+.login-container .app-brand {
+    flex-direction: column; /* Apila elementos verticalmente en el login */
+    margin-bottom: 30px; /* Margen inferior en el login */
+}
+
+/* Estilos para el icono del logo */
 .app-brand .logo-icon {
-    font-size: 3.5rem;
-    color: var(--accent-secondary);
+    font-size: 3.5rem; /* Tamaño grande del icono */
+    color: var(--accent-secondary); /* Color de acento secundario */
+}
+/* Ajuste para el icono en la barra superior */
+.top-bar .app-brand .logo-icon {
+    font-size: 2.5rem; /* Tamaño más pequeño para la barra superior */
 }
  
 /* Estilo del nombre de la app con degradado */
 .app-brand h1 {
-    font-size: 2rem;
+    font-size: 2rem; /* Tamaño del título */
+    font-weight: 800; /* Negrita extra */
+    margin: 0; /* Elimina márgenes por defecto */
+    /* Degradado de color para el texto */
+    background: linear-gradient(45deg, var(--accent-secondary), var(--accent-primary));
+    -webkit-background-clip: text; /* Recorta el fondo al texto (para navegadores WebKit) */
+    -webkit-text-fill-color: transparent; /* Hace el texto transparente para que se vea el fondo */
+    background-clip: text; /* Recorta el fondo al texto */
+    color: transparent; /* Hace el texto transparente */
+}
+/* Ajuste para el título en la barra superior */
+.top-bar .app-brand h1 {
+    font-size: 1.8rem; /* Tamaño más pequeño para la barra superior */
+}
+
+/* Alineación del formulario de login */
+#loginForm {
+    text-align: left; /* Alinea el texto del formulario a la izquierda */
+}
+
+/* Estilos para cada grupo de formulario (label + input) */
+.form-group {
+    margin-bottom: 20px; /* Margen inferior entre grupos */
+}
+
+/* Estilos para las etiquetas de los campos del formulario */
+.form-group label {
+    display: block; /* Ocupa todo el ancho disponible */
+    margin-bottom: 8px; /* Margen inferior */
+    font-weight: 600; /* Seminegrita */
+    font-size: 0.9rem; /* Tamaño de fuente */
+}
+ 
+/* Estilos para los campos de entrada de texto y contraseña */
+input[type="text"], input[type="password"] {
+    width: 100%; /* Ocupa todo el ancho del contenedor */
+    padding: 14px 18px; /* Espaciado interno */
+    border: 1px solid var(--border-color); /* Borde */
+    border-radius: 10px; /* Bordes redondeados */
+    background-color: var(--background-body); /* Fondo suave */
+    color: var(--text-primary); /* Color de texto */
+    font-size: 1rem; /* Tamaño de fuente */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Transición suave para el foco */
+}
+
+/* Estilos para los campos de entrada cuando están en foco */
+input:focus {
+    outline: none; /* Elimina el contorno por defecto del navegador */
+    border-color: var(--accent-secondary); /* Cambia el color del borde */
+    box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.3); /* Añade una sombra de foco */
+}
+
+/* Estilos para el botón principal (login) */
+.btn-primary {
+    background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary)); /* Degradado de fondo */
+    color: white; /* Color de texto blanco */
+    width: 100%; /* Ocupa todo el ancho */
+    margin-top: 15px; /* Margen superior */
+    padding: 14px 30px; /* Espaciado interno */
+    border: none; /* Sin borde */
+    border-radius: 10px; /* Bordes redondeados */
+    cursor: pointer; /* Cambia el cursor a una mano */
+    font-size: 1.1rem; /* Tamaño de fuente */
+    font-weight: 700; /* Negrita */
+    transition: all 0.3s ease; /* Transición suave para todos los cambios */
+    display: flex; /* Usa flexbox para alinear el icono y el texto */
+    align-items: center; /* Centra verticalmente los elementos hijos */
+    justify-content: center; /* Centra horizontalmente los elementos hijos */
+    gap: 8px; /* Espacio entre el icono y el texto */
+}
+
+/* Estilos para el botón principal al pasar el ratón por encima */
+.btn-primary:hover {
+    transform: translateY(-3px); /* Ligeramente hacia arriba */
+    box-shadow: 0 8px 20px rgba(79, 195, 247, 0.4); /* Sombra más pronunciada */
+}
+
+/* Estilos para el botón principal cuando está deshabilitado */
+.btn-primary:disabled {
+    opacity: 0.6; /* Menor opacidad */
+    cursor: not-allowed; /* Cursor de "no permitido" */
+    transform: none; /* Sin transformación */
+    box-shadow: none; /* Sin sombra */
+}
+
+/* Estilos para el mensaje de error */
+.error-message {
+    color: var(--action-error); /* Color rojo para errores */
+    font-size: 0.85rem; /* Tamaño de fuente más pequeño */
+    margin-top: 8px; /* Margen superior */
+    min-height: 1.2em; /* Altura mínima para evitar saltos de diseño */
+}
+
+/* --- Estilos para la página de Home (Panel de Control) --- */
+
+.top-bar {
+    background-color: var(--background-container);
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 10px var(--shadow-color);
+}
+
+.user-info-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--background-body);
+    border-radius: 25px;
+    padding: 8px 15px;
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.user-info-box:hover {
+    box-shadow: 0 4px 15px rgba(79, 195, 247, 0.2);
+    transform: translateY(-2px);
+}
+
+.user-info-box .user-details {
+    text-align: right;
+    line-height: 1.2;
+}
+
+.user-info-box .user-details div {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.user-info-box .user-details small {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.user-info-box .mdi-account-circle-outline {
+    font-size: 2.2rem;
+    color: var(--accent-secondary);
+}
+
+.page-container {
+    flex-grow: 1; /* Permite que el contenedor principal ocupe el espacio restante */
+    padding: 30px;
+    max-width: 1200px;
+    margin: 30px auto; /* Centra el contenedor en la página */
+    background-color: var(--background-container);
+    border-radius: 20px;
+    box-shadow: 0 5px 20px var(--shadow-color);
+}
+
+.header-dashboard {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.header-dashboard h1 {
+    font-size: 2.8rem;
     font-weight: 800;
-    margin: 0;
+    margin-bottom: 10px;
     background: linear-gradient(45deg, var(--accent-secondary), var(--accent-primary));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -70,46 +257,97 @@ body {
     color: transparent;
 }
 
-#loginForm { text-align: left; }
-.form-group { margin-bottom: 20px; }
-.form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
- 
-input[type="text"], input[type="password"] {
-    width: 100%;
-    padding: 14px 18px;
-    border: 1px solid var(--border-color);
-    border-radius: 10px;
-    background-color: var(--background-body);
-    color: var(--text-primary);
-    font-size: 1rem;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-input:focus {
-    outline: none;
-    border-color: var(--accent-secondary);
-    box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.3);
+.header-dashboard p {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
 }
 
-.btn-primary {
-    background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
-    color: white;
-    width: 100%;
-    margin-top: 15px;
-    padding: 14px 30px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 1.1rem;
-    font-weight: 700;
-    transition: all 0.3s ease;
+.tiles-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 25px;
+    justify-content: center; /* Centra los tiles si no llenan todo el ancho */
+}
+
+.tile {
+    background-color: var(--background-body);
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 25px;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    text-decoration: none; /* Elimina el subrayado de los enlaces */
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    text-align: center;
 }
-.btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(79, 195, 247, 0.4);
+
+.tile:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(79, 195, 247, 0.3);
+    background-color: var(--accent-glow-start); /* Cambia el fondo al pasar el ratón */
+    color: white; /* Cambia el color del texto a blanco para mejor contraste */
 }
-.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
-.error-message { color: var(--action-error); font-size: 0.85rem; margin-top: 8px; min-height: 1.2em; }
+
+.tile i {
+    font-size: 3.5rem;
+    color: var(--accent-secondary);
+    margin-bottom: 15px;
+    transition: color 0.3s ease;
+}
+
+.tile:hover i {
+    color: white; /* Cambia el color del icono al pasar el ratón */
+}
+
+/* Estilo específico para el botón de cerrar sesión */
+#logout-button {
+    background: linear-gradient(45deg, var(--action-error), #d32f2f);
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#logout-button:hover {
+    background: linear-gradient(45deg, #d32f2f, #c62828);
+    box-shadow: 0 10px 25px rgba(239, 83, 80, 0.3);
+    transform: translateY(-5px);
+}
+
+#logout-button i {
+    color: white; /* Asegura que el icono sea blanco para el botón de cerrar sesión */
+}
+
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+    .top-bar {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px;
+    }
+    .page-container {
+        padding: 20px;
+        margin: 20px auto;
+    }
+    .header-dashboard h1 {
+        font-size: 2rem;
+    }
+    .header-dashboard p {
+        font-size: 1rem;
+    }
+    .tiles-container {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+    }
+    .tile {
+        padding: 20px;
+        font-size: 1rem;
+    }
+    .tile i {
+        font-size: 2.8rem;
+    }
+}
