@@ -84,7 +84,7 @@ async function callApi(method, body) {
     if (body) options.body = JSON.stringify(body);
     
     const response = await fetch(API_ENDPOINT, options);
-    const responseData = await response.json();
+    const responseData = await response.json(); // Aquí es donde falla si no recibe JSON
     if (!response.ok) {
         // Si la respuesta no es OK, lanza un error con el mensaje de la API
         throw new Error(responseData.message || `Error en la solicitud: ${response.status}`);
