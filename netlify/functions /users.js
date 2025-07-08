@@ -1,3 +1,4 @@
+// netlify/functions/users.js
 const admin = require('firebase-admin');
 
 let serviceAccount;
@@ -29,15 +30,17 @@ if (admin.apps.length === 0 && serviceAccount) {
 
 exports.handler = async (event, context) => {
   const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS'
+    'Access-Control-Allow-Origin': '*', // Permite solicitudes desde cualquier origen (CORS)
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization', // Permite estos encabezados
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS' // Permite estos métodos
   };
 
+  // Manejo de solicitudes OPTIONS (preflight CORS)
   if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers };
+    return { statusCode: 204, headers }; // 204 No Content para solicitudes OPTIONS exitosas
   }
 
+  // Si Firebase Admin SDK no se inicializó, devuelve un error 500
   if (admin.apps.length === 0 || !serviceAccount) {
     return {
       statusCode: 500,
@@ -63,47 +66,47 @@ exports.handler = async (event, context) => {
   const { action, uid, email, password, username, role } = body; 
 
   let decodedToken;
-  let requestorRole = 'usuario';
+  let requestorRole = 'usuario'; // Rol por defecto si no se puede verificar el token
   try {
     const authHeader = event.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw new Error('Token de autorización no proporcionado o formato inválido.');
     }
     const idToken = authHeader.split('Bearer ')[1];
-    decodedToken = await admin.auth().verifyIdToken(idToken);
-    requestorRole = decodedToken.role || 'usuario'; 
+    decodedToken = await admin.auth().verifyIdToken(idToken); // Verifica el token ID del frontend
+    requestorRole = decodedToken.role || 'usuario'; // Obtiene el rol de los claims personalizados
   } catch (error) {
     console.error('Error al verificar el token:', error.message);
     return {
-      statusCode: 401,
+      statusCode: 401, // No autorizado
       headers,
       body: JSON.stringify({ message: 'No autorizado: ' + error.message })
     };
   }
 
-  const requestorUid = decodedToken.uid;
+  const requestorUid = decodedToken.uid; // UID del usuario que hace la solicitud
 
   try {
     if (method === 'GET') {
+      // Solo administradores pueden listar usuarios
       if (requestorRole !== 'administrador') {
         return {
-          statusCode: 403,
+          statusCode: 403, // Prohibido
           headers,
           body: JSON.stringify({ message: 'Prohibido: Solo los administradores pueden listar usuarios.' })
         };
       }
 
-      const listUsersResult = await admin.auth().listUsers(1000); 
+      const listUsersResult = await admin.auth().listUsers(1000); // Lista hasta 1000 usuarios
       const users = listUsersResult.users;
 
-      // No necesitamos consultar Firestore aquí, todos los datos relevantes están en Firebase Auth
       const profiles = users.map(u => {
         return {
           uid: u.uid,
           email: u.email,
-          displayName: u.displayName || 'N/A', // Usamos displayName de Auth si no hay 'full_name' de Firestore
+          displayName: u.displayName || 'N/A', // Nombre mostrado en Auth
           metadata: u.metadata,
-          role: u.customClaims?.role || "usuario", // Obtiene el rol de customClaims
+          role: u.customClaims?.role || "usuario", // Rol de los custom claims
         };
       });
       return { statusCode: 200, headers, body: JSON.stringify(profiles) };
@@ -111,6 +114,7 @@ exports.handler = async (event, context) => {
     } else if (method === 'POST') {
       switch (action) {
         case 'create':
+          // Solo administradores pueden crear usuarios
           if (requestorRole !== 'administrador') {
             return { statusCode: 403, headers, body: JSON.stringify({ message: 'Prohibido: Solo los administradores pueden crear usuarios.' }) };
           }
@@ -121,12 +125,10 @@ exports.handler = async (event, context) => {
           const newUser = await admin.auth().createUser({
             email,
             password,
-            displayName: username,
+            displayName: username, // Establece el displayName en Firebase Auth
           });
           
-          await admin.auth().setCustomUserClaims(newUser.uid, { role }); 
-          
-          // *** ELIMINADO: Lógica de Firestore para crear perfil ***
+          await admin.auth().setCustomUserClaims(newUser.uid, { role }); // Asigna el rol personalizado
           
           return { statusCode: 200, headers, body: JSON.stringify({ message: 'Usuario creado exitosamente', uid: newUser.uid }) };
 
@@ -135,6 +137,7 @@ exports.handler = async (event, context) => {
             return { statusCode: 400, headers, body: JSON.stringify({ message: 'Faltan campos obligatorios para actualizar el usuario (uid, username, email, role).' }) };
           }
 
+          // Un usuario solo puede actualizar su propio perfil, o un administrador puede actualizar cualquier perfil
           if (requestorUid !== uid && requestorRole !== 'administrador') {
             return { statusCode: 403, headers, body: JSON.stringify({ message: 'Prohibido: No tienes permiso para actualizar este usuario.' }) };
           }
@@ -143,7 +146,7 @@ exports.handler = async (event, context) => {
             email: email,
             displayName: username,
           };
-          if (password) {
+          if (password) { // Solo actualiza la contraseña si se proporciona
             updates.password = password;
           }
 
@@ -152,21 +155,22 @@ exports.handler = async (event, context) => {
           const userToUpdateAuth = await admin.auth().getUser(uid);
           const currentTargetRole = userToUpdateAuth.customClaims?.role || 'usuario';
 
+          // Solo un administrador puede cambiar roles
           if (requestorRole === 'administrador') {
             if (currentTargetRole !== role) { 
               await admin.auth().setCustomUserClaims(uid, { role });
             }
           } else {
+            // Si no es admin y el rol intenta cambiarse, es un intento no autorizado
             if (currentTargetRole !== role) {
               return { statusCode: 403, headers, body: JSON.stringify({ message: 'Prohibido: No tienes permiso para cambiar el rol de un usuario.' }) };
             }
           }
 
-          // *** ELIMINADO: Lógica de Firestore para actualizar perfil ***
-
           return { statusCode: 200, headers, body: JSON.stringify({ message: 'Usuario actualizado exitosamente', uid: uid }) };
 
         case 'delete':
+          // Solo administradores pueden eliminar usuarios (y no a sí mismos)
           if (requestorRole !== 'administrador') {
             return { statusCode: 403, headers, body: JSON.stringify({ message: 'Prohibido: Solo los administradores pueden eliminar usuarios.' }) };
           }
@@ -177,10 +181,9 @@ exports.handler = async (event, context) => {
             return { statusCode: 403, headers, body: JSON.stringify({ message: 'Prohibido: No puedes eliminar tu propia cuenta de administrador.' }) };
           }
           await admin.auth().deleteUser(uid);
-          // *** ELIMINADO: Lógica de Firestore para eliminar perfil ***
           return { statusCode: 200, headers, body: JSON.stringify({ message: 'Usuario eliminado exitosamente', uid: uid }) };
         
-        case 'set-role':
+        case 'set-role': // Acción para cambiar solo el rol (si es necesario por separado)
           if (requestorRole !== 'administrador') {
             return { statusCode: 403, headers, body: JSON.stringify({ message: 'Prohibido: Solo los administradores pueden asignar roles.' }) };
           }
@@ -192,8 +195,6 @@ exports.handler = async (event, context) => {
           }
 
           await admin.auth().setCustomUserClaims(uid, { role });
-          // *** ELIMINADO: Lógica de Firestore para actualizar rol ***
-
           return { statusCode: 200, headers, body: JSON.stringify({ message: `Rol '${role}' asignado a usuario ${uid}.` }) };
 
         default:
@@ -207,6 +208,7 @@ exports.handler = async (event, context) => {
     let statusCode = 500;
     let errorMessage = error.message;
 
+    // Manejo de errores específicos de Firebase Auth
     if (error.code === 'auth/email-already-exists') {
       statusCode = 409;
       errorMessage = 'El correo electrónico ya está en uso.';
@@ -222,6 +224,9 @@ exports.handler = async (event, context) => {
     } else if (error.code === 'auth/weak-password') {
       statusCode = 400;
       errorMessage = 'La contraseña proporcionada es demasiado débil. Debe ser al menos de 6 caracteres.';
+    } else if (error.code === 'auth/argument-error' && error.message.includes('email')) {
+      statusCode = 400;
+      errorMessage = 'El email proporcionado es inválido.';
     }
 
     return { statusCode: statusCode, headers, body: JSON.stringify({ message: errorMessage }) };
