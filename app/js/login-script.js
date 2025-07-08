@@ -97,8 +97,8 @@ function showNotification(message, type = 'info') {
 }
 
 
-// RUTA: Debe ser relativa desde index.html hasta home.html
-const HOME_PAGE = 'app/pages/home.html'; 
+// RUTA CORREGIDA: Debe ser relativa desde index.html hasta home.html
+const HOME_PAGE = 'app/html/home.html'; 
 
 // Listener para el estado de autenticación de Firebase.
 // Este es el mecanismo principal para la redirección después del inicio/cierre de sesión.
@@ -112,7 +112,7 @@ onAuthStateChanged(auth, (user) => {
         console.log('onAuthStateChanged (login-script.js): User is logged in. UID:', user.uid);
         // Comprueba si la ruta actual ya incluye la ruta completa a home.html
         // Esto evita redirecciones innecesarias si el usuario ya está en la página de inicio.
-        if (!currentPath.includes('/app/pages/home.html')) {
+        if (!currentPath.includes('/app/html/home.html')) { // Ruta corregida a /app/html/
             console.log('onAuthStateChanged (login-script.js): Not on home page. Redirecting to:', HOME_PAGE);
             window.location.href = HOME_PAGE;
         } else {
@@ -121,10 +121,10 @@ onAuthStateChanged(auth, (user) => {
     } else {
         // No hay usuario logueado.
         console.log('onAuthStateChanged (login-script.js): User is logged out.');
-        // Si el usuario cierra sesión desde una página dentro de 'app/pages/', redirígelo a index.html
-        if (currentPath.includes('/app/pages/')) {
+        // Si el usuario cierra sesión desde una página dentro de 'app/html/', redirígelo a index.html
+        if (currentPath.includes('/app/html/')) { // Ruta corregida a /app/html/
             console.log('onAuthStateChanged (login-script.js): User logged out from an app page. Redirecting to index.html');
-            // La ruta desde app/pages/ a index.html es ../../index.html
+            // La ruta desde app/html/ a index.html es ../../index.html
             window.location.href = '../../index.html'; 
         } else {
             console.log('onAuthStateChanged (login-script.js): User logged out from index.html or another non-app page. No redirection needed.');
