@@ -1,15 +1,8 @@
 {
-  "name": "labflow-manager-functions",
+  "name": "labflow-backend",
   "version": "1.0.0",
-  "description": "Netlify Functions for LabFlow Manager",
-  "main": "netlify/functions/users.js",
-  "scripts": {
-    "start": "netlify dev"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "description": "Backend functions for LabFlow Manager",
   "dependencies": {
-    "firebase-admin": "^10.0.0" // Asegúrate de tener la versión correcta
+    "firebase-admin": "^12.1.1"
   }
 }
