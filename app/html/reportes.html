@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LabFlow Manager - Reportes</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  
+  <style>
+    /* 1. Variables CSS (Copia y pega este bloque en todos tus HTML) */
+    :root {
+        --background-light: #ffffff;
+        --background-medium: #f0f4f8;
+        --background-dark: #e0e6ec;
+        --text-primary: #2c3e50;
+        --text-secondary: #607d8b;
+        --border-color: #d1d9e6;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+
+        --accent-glow-start: rgba(129, 212, 250, 0.6);
+        --accent-glow-end: rgba(79, 195, 247, 0.6);
+        --accent-primary: #81d4fa;
+        --accent-secondary: #4fc3f7;
+
+        --action-success: #66bb6a;
+        --action-error: #ef5350;
+        --action-info: #42a5f5;
+        --action-warning: #ffa726;
+
+        --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+        --sidebar-width-collapsed: 60px;
+        --sidebar-width-expanded: 240px;
+    }
+
+    /* 2. Estilos CSS Globales y Comunes (Copia y pega este bloque en todos tus HTML) */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+        font-family: var(--font-family);
+        background: var(--background-light);
+        background-image:
+            radial-gradient(ellipse at 10% 90%, var(--accent-glow-start), transparent 50%),
+            radial-gradient(ellipse at 90% 10%, var(--accent-glow-end), transparent 50%);
+        color: var(--text-primary);
+        display: flex;
+        min-height: 100vh;
+        overflow-x: hidden;
+        animation: fadeIn 1s ease-in-out;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .login-container, .page-container, .main-container, .content-wrapper, #reportOptions, #reportDisplay {
+        background-color: var(--background-medium);
+        border: 1px solid var(--border-color);
+        border-radius: 16px;
+        padding: 30px;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow: 0 8px 25px var(--shadow-color);
+        transition: transform 0.3s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    h1, h2 { color: var(--text-primary); font-weight: 700; }
+    p { color: var(--text-secondary); }
+
+    .btn { font-family: var(--font-family); padding: 12px 25px; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem; font-weight: 500; transition: all 0.3s ease, transform 0.2s ease; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    .btn-primary { background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary)); color: white; }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(79, 195, 247, 0.4); }
+    .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+    .btn-secondary { background-color: var(--background-dark); color: var(--text-primary); border: 1px solid var(--border-color); }
+    .btn-secondary:hover { background-color: #dbe2e9; border-color: #c0c6ce; }
+    .btn-edit { background-color: rgba(79, 195, 247, 0.2); color: var(--accent-secondary); }
+    .btn-edit:hover { background-color: rgba(79, 195, 247, 0.4); }
+    .btn-delete { background-color: rgba(239, 83, 80, 0.2); color: var(--action-error); }
+    .btn-delete:hover { background-color: rgba(239, 83, 80, 0.4); }
+    .btn-info-action {
+        background-color: rgba(66, 165, 245, 0.2);
+        color: var(--action-info);
+    }
+    .btn-info-action:hover {
+        background-color: rgba(66, 165, 245, 0.4);
+    }
+
+    input[type="text"], input[type="email"], input[type="password"], input[type="number"], input[type="date"], input[type="search"], select, textarea {
+        width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 8px; background-color: var(--background-dark); color: var(--text-primary); font-size: 1rem; transition: border-color 0.3s ease, box-shadow 0.3s ease; }
+    input::placeholder, textarea::placeholder { color: var(--text-secondary); opacity: 0.8; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent-secondary); box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.3); }
+
+    .error-message { color: var(--action-error); font-size: 0.85rem; margin-top: 5px; text-align: left; }
+
+    #app-notification { position: fixed; top: 25px; right: 25px; padding: 12px 25px; border-radius: 8px; color: white; z-index: 2000; opacity: 0; transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out; transform: translateX(100%); display: flex; align-items: center; justify-content: center; font-size: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    #app-notification.show { opacity: 1; transform: translateX(0); }
+    #app-notification.success { background-color: var(--action-success); }
+    #app-notification.error { background-color: var(--action-error); }
+    #app-notification.info { background-color: var(--action-info); }
+
+    /* 3. Estilos Específicos para Páginas de Módulo (inventory.html, entradas-salidas.html, users.html, equipos.html, envios.html, productos.html, reportes.html) */
+    body {
+        display: flex;
+        flex-direction: row; /* Sidebar y main en fila */
+        align-items: stretch; /* Estira el contenido verticalmente */
+        background-image: none; /* Sin glow para un fondo más limpio */
+        background-color: var(--background-light); /* Fondo del contenido de la página */
+    }
+
+    nav#sidebar {
+        width: var(--sidebar-width-collapsed);
+        background: var(--background-medium);
+        color: var(--text-primary);
+        display: flex;
+        flex-direction: column;
+        transition: width 0.3s ease-in-out;
+        position: fixed;
+        height: 100vh;
+        overflow: hidden;
+        z-index: 1000;
+        box-shadow: 2px 0 8px var(--shadow-color);
+        border-right: 1px solid var(--border-color);
+    }
+    nav#sidebar:hover {
+        width: var(--sidebar-width-expanded);
+    }
+    nav#sidebar header {
+        padding: 1.2rem 1rem;
+        font-weight: 700;
+        font-size: 0; /* Oculta el texto por defecto */
+        user-select: none;
+        text-align: center;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--background-dark);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: font-size 0.3s ease, padding 0.3s ease;
+    }
+    nav#sidebar:hover header {
+        font-size: 1.3rem;
+        padding: 1.2rem 1rem;
+    }
+
+    #user-info {
+        padding: 1rem 1.2rem;
+        font-size: 0.9rem;
+        border-top: 1px solid var(--border-color);
+        text-align: center;
+        opacity: 0;
+        height: 0;
+        overflow: hidden;
+        transition: opacity 0.3s ease, height 0.3s ease, padding 0.3s ease;
+    }
+    nav#sidebar:hover #user-info {
+        opacity: 1;
+        height: auto;
+        padding: 1rem 1.2rem;
+    }
+    #user-info .material-symbols-outlined {
+        font-size: 1.8rem;
+        margin-bottom: 0.3rem;
+        color: var(--accent-secondary);
+    }
+    #user-email-display-sidebar {
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: var(--text-secondary);
+    }
+    #user-logout-btn-sidebar {
+        background: var(--background-dark);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        margin-top: 8px;
+        transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    #user-logout-btn-sidebar:hover {
+        background-color: rgba(0,0,0,0.1);
+        border-color: rgba(0,0,0,0.3);
+    }
+
+    nav#sidebar ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        flex-grow: 1;
+        overflow-y: auto;
+    }
+    nav#sidebar ul li {
+        border-bottom: 1px solid var(--border-color);
+    }
+    nav#sidebar ul li a {
+        display: flex;
+        align-items: center;
+        color: var(--text-primary);
+        text-decoration: none;
+        padding: 1rem 1.2rem;
+        font-weight: 500;
+        transition: background-color 0.3s ease;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    nav#sidebar ul li a:hover {
+        background: rgba(0,0,0,0.05);
+        color: var(--text-primary);
+    }
+    nav#sidebar ul li a .material-symbols-outlined {
+        margin-right: 0;
+        font-size: 1.6rem;
+        transition: margin-right 0.3s ease;
+    }
+    nav#sidebar:hover ul li a .material-symbols-outlined {
+        margin-right: 1rem;
+    }
+    nav#sidebar ul li a span.text {
+        display: none;
+        transition: opacity 0.3s ease;
+        opacity: 0;
+        width: 0;
+    }
+    nav#sidebar:hover ul li a span.text {
+        display: inline;
+        opacity: 1;
+        width: auto;
+    }
+    
+    #btnToggleSidebar { display: none; }
+
+
+    main#content {
+        flex-grow: 1;
+        margin-left: var(--sidebar-width-collapsed);
+        padding: 2rem 3rem 4rem 3rem;
+        transition: margin-left 0.3s ease-in-out;
+        background-color: var(--background-light);
+    }
+    nav#sidebar:hover + main#content {
+        margin-left: var(--sidebar-width-expanded);
+    }
+
+    header.page-header {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        user-select: none;
+        color: var(--text-primary);
+    }
+    #btnBackMenu {
+        background: var(--background-dark);
+        border: 1px solid var(--border-color);
+        color: var(--text-primary);
+        font-size: 1rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        cursor: pointer;
+        user-select: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        margin-bottom: 1.5rem;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+    #btnBackMenu:hover {
+        background: rgba(0,0,0,0.1);
+        border-color: rgba(0,0,0,0.3);
+    }
+
+    .content-wrapper {
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px; /* Space between report options and display area */
+    }
+
+    /* Report Options */
+    #reportOptions {
+        padding: 25px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        align-items: flex-end;
+    }
+    #reportOptions .form-group {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end; /* Align items to the bottom */
+    }
+    #reportOptions label {
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.95rem;
+    }
+    #reportOptions select, #reportOptions input[type="date"] {
+        background-color: var(--background-dark);
+        color: var(--text-primary);
+        padding: 10px 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 1rem;
+    }
+    #reportOptions .btn {
+        height: 44px; /* Match input height for alignment */
+        align-self: flex-end; /* Align to the bottom of the grid cell */
+    }
+
+    /* Report Display Area */
+    #reportDisplay {
+        min-height: 300px;
+        padding: 25px;
+        position: relative;
+    }
+    #reportDisplay h3 {
+        margin-bottom: 20px;
+        color: var(--text-primary);
+        font-weight: 700;
+        font-size: 1.4rem;
+    }
+    #reportDisplay .report-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05); /* Lighter shadow for inner table */
+        background: var(--background-dark); /* Slightly darker background for report table */
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    #reportDisplay .report-table thead {
+        background: var(--background-medium); /* Lighter header */
+        color: var(--text-primary);
+    }
+    #reportDisplay .report-table th, #reportDisplay .report-table td {
+        padding: 10px 15px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.9rem;
+        color: var(--text-primary);
+    }
+    #reportDisplay .report-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+    #reportDisplay .report-table tbody tr:hover {
+        background: rgba(0,0,0,0.03); /* Very light hover */
+    }
+    #reportDisplay .loading-message, #reportDisplay .empty-message, #reportDisplay .error-message {
+        text-align: center;
+        padding: 20px;
+        font-style: italic;
+        color: var(--text-secondary);
+        background: var(--background-dark); /* Ensure it's visible */
+    }
+    .report-status-low { color: var(--action-warning); font-weight: 500; }
+    .report-status-ok { color: var(--action-success); font-weight: 500; }
+    .report-status-expired { color: var(--action-error); font-weight: 500; }
+    .report-status-expiring { color: var(--action-warning); font-weight: 500; }
+    .report-status-entrada { color: var(--action-success); font-weight: 500; }
+    .report-status-salida { color: var(--action-error); font-weight: 500; }
+    .report-status-ajuste { color: var(--action-info); font-weight: 500; }
+    .report-status-pendiente { color: var(--action-info); font-weight: 500; }
+    .report-status-en-transito { color: var(--action-warning); font-weight: 500; }
+    .report-status-entregado { color: var(--action-success); font-weight: 500; }
+
+
+    @media (max-width: 768px) {
+        main#content {
+            padding: 1.5rem;
+        }
+        .content-wrapper {
+            padding: 20px;
+        }
+        #reportOptions {
+            grid-template-columns: 1fr;
+        }
+        #reportOptions .btn {
+            width: 100%;
+        }
+        #reportDisplay {
+            padding: 15px;
+        }
+        #reportDisplay .report-table thead { display: none; }
+        #reportDisplay .report-table tr {
+            display: block;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            background-color: var(--background-dark);
+        }
+        #reportDisplay .report-table td {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: none;
+            align-items: center;
+        }
+        #reportDisplay .report-table td::before {
+            content: attr(data-label);
+            font-weight: bold;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+            margin-right: 10px;
+        }
+        #reportDisplay .report-table td:last-child {
+            justify-content: flex-end;
+            margin-top: 10px;
+        }
+    }
+  </style>
+</head>
+<body>
+  <nav id="sidebar" aria-label="Menú lateral">
+    <header>LabFlow Manager</header>
+    <ul>
+      <li><a href="home.html"><span class="material-symbols-outlined">home</span> <span class="text">Inicio</span></a></li>
+      <li><a href="inventory.html"><span class="material-symbols-outlined">inventory_2</span> <span class="text">Insumos</span></a></li>
+      <li><a href="productos.html"><span class="material-symbols-outlined">category</span> <span class="text">Productos</span></a></li>
+      <li><a href="entradas-salidas.html"><span class="material-symbols-outlined">swap_horiz</span> <span class="text">Entradas/Salidas</span></a></li>
+      <li><a href="envios.html"><span class="material-symbols-outlined">local_shipping</span> <span class="text">Envíos</span></a></li>
+      <li><a href="equipos.html"><span class="material-symbols-outlined">build</span> <span class="text">Equipos</span></a></li>
+      <li><a href="users.html"><span class="material-symbols-outlined">groups</span> <span class="text">Usuarios</span></a></li>
+      <li><a href="reportes.html"><span class="material-symbols-outlined">bar_chart</span> <span class="text">Reportes</span></a></li>
+    </ul>
+    <div id="user-info">
+        <span class="material-symbols-outlined">account_circle</span>
+        <div id="user-email-display-sidebar">Verificando sesión...</div> 
+        <button id="user-logout-btn-sidebar" class="btn-secondary">Cerrar Sesión</button> 
+    </div>
+  </nav>
+
+  <main id="content" tabindex="-1">
+    <header class="page-header">Generación de Reportes</header>
+    <button id="btnBackMenu" class="btn-secondary" title="Volver al menú principal">← Volver al menú</button>
+
+    <div class="content-wrapper">
+        <div id="reportOptions" class="page-container">
+            <h2 class="section-title" style="grid-column: 1 / -1; margin-bottom: 0;">Selecciona un reporte</h2>
+            
+            <div class="form-group">
+                <label for="reportType">Tipo de Reporte:</label>
+                <select id="reportType">
+                    <option value="stock_insumos">Stock de Insumos</option>
+                    <option value="movimientos_inventario">Movimientos de Inventario</option>
+                    <option value="envios">Envíos</option>
+                    </select>
+            </div>
+
+            <div class="form-group" id="filterLowStockGroup">
+                <label for="filterLowStock">Filtrar por:</label>
+                <select id="filterLowStock">
+                    <option value="all">Todos los Insumos</option>
+                    <option value="low_stock">Solo Stock Bajo</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="filterDateRangeGroup" style="display: none;">
+                <label for="startDate">Fecha Inicio:</label>
+                <input type="date" id="startDate">
+            </div>
+            <div class="form-group" id="filterEndDateGroup" style="display: none;">
+                <label for="endDate">Fecha Fin:</label>
+                <input type="date" id="endDate">
+            </div>
+
+            <button id="generateReportBtn" class="btn btn-primary">
+                <span class="material-symbols-outlined">insights</span> Generar Reporte
+            </button>
+        </div>
+
+        <div id="reportDisplay" class="page-container">
+            <h3 id="reportTitle">Reporte de Stock de Insumos</h3>
+            <div id="reportContent">
+                <p class="empty-message">Selecciona un tipo de reporte y haz clic en "Generar Reporte".</p>
+            </div>
+        </div>
+    </div>
+  </main>
+
+  <script type="module">
+    // --- Firebase SDKs ---
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { 
+        getFirestore, 
+        collection, 
+        query, 
+        where, 
+        orderBy, 
+        getDocs, 
+        doc, 
+        getDoc // Necesario para obtener datos relacionados (productos, lotes)
+    } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    // ** TU OBJETO firebaseConfig DE LA CONSOLA DE FIREBASE **
+    // REEMPLAZA estos valores con los que obtuviste al configurar tu proyecto Firebase.
+    const firebaseConfig = {
+      apiKey: "AIzaSyCxJOpBEXZUo7WrAqDTrlJV_2kJBsL8Ym0",
+      authDomain: "labflow-manager.firebaseapp.com",
+      projectId: "labflow-manager",
+      storageBucket: "labflow-manager.firebasestorage.app",
+      messagingSenderId: "742212306654",
+      appId: "1:742212306654:web:a53bf890fc63cd5d05e44f",
+      measurementId: "G-YVZDBCJR3B"
+    };
+
+    // Inicializa Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // --- Elementos DOM Comunes ---
+    const btnBackMenu = document.getElementById('btnBackMenu');
+    const userEmailDisplaySidebar = document.getElementById('user-email-display-sidebar');
+    const userLogoutBtnSidebar = document.getElementById('user-logout-btn-sidebar');
+    // Global notification div
+    let notificationDiv = document.getElementById('app-notification');
+    if (!notificationDiv) {
+        notificationDiv = document.createElement('div');
+        notificationDiv.id = 'app-notification';
+        document.body.appendChild(notificationDiv);
+    }
+
+    // --- Elementos DOM de Reportes ---
+    const reportTypeSelect = document.getElementById('reportType');
+    const filterLowStockSelect = document.getElementById('filterLowStock');
+    const filterLowStockGroup = document.getElementById('filterLowStockGroup');
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    const filterDateRangeGroup = document.getElementById('filterDateRangeGroup');
+    const filterEndDateGroup = document.getElementById('filterEndDateGroup');
+    const generateReportBtn = document.getElementById('generateReportBtn');
+    const reportTitleElement = document.getElementById('reportTitle');
+    const reportContentDiv = document.getElementById('reportContent');
+
+    // --- Funciones de Utilidad ---
+    function formatDateTime(dateTimeString) {
+        if (!dateTimeString) return 'N/A';
+        try {
+            return new Date(dateTimeString).toLocaleString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+        } catch (e) {
+            console.warn("Fecha/hora inválida para formatear:", dateTimeString, e);
+            return dateTimeString;
+        }
+    }
+    function formatFecha(dateString) { // Formatea AAAA-MM-DD a DD/MM/YYYY
+        if (!dateString) return 'N/A';
+        try {
+            const date = new Date(dateString);
+            if (isNaN(date)) {
+                console.warn("Fecha inválida para formatear:", dateString);
+                return dateString;
+            }
+            return date.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        } catch (e) {
+            console.error("Error al formatear fecha:", dateString, e);
+            return dateString;
+        }
+    }
+    function showNotification(message, type = 'info') {
+        notificationDiv.textContent = message;
+        notificationDiv.className = '';
+        notificationDiv.classList.add(type);
+        notificationDiv.classList.add('show');
+        setTimeout(() => { notificationDiv.classList.remove('show'); }, 3000);
+    }
+
+    // --- Control de Navegación y Sesión ---
+    btnBackMenu.addEventListener('click', () => {
+      window.location.href = 'home.html';
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            const userName = user.displayName || user.email;
+            userEmailDisplaySidebar.textContent = userName;
+            console.log('Sesión activa de Firebase restaurada para:', user.email);
+            // Generar el reporte de stock por defecto al cargar la página
+            generateReport(); 
+        } else {
+            console.log('No hay sesión activa de Firebase o ha sido cerrada. Redirigiendo al login...');
+            window.location.href = 'index.html';
+        }
+    });
+
+    async function handleLogout() {
+        try {
+            await signOut(auth);
+            console.log('Sesión cerrada correctamente.');
+        } catch (error) {
+            console.error('Error al cerrar sesión:', error.message);
+            showNotification('Error al cerrar sesión: ' + error.message, 'error');
+        }
+    }
+    document.getElementById('user-logout-btn-sidebar').addEventListener('click', handleLogout);
+
+    // --- Lógica de Generación de Reportes ---
+
+    reportTypeSelect.addEventListener('change', () => {
+        // Ocultar/mostrar filtros relevantes según el tipo de reporte seleccionado
+        const selectedReportType = reportTypeSelect.value;
+        if (selectedReportType === 'stock_insumos') {
+            filterLowStockGroup.style.display = 'flex';
+            filterDateRangeGroup.style.display = 'none';
+            filterEndDateGroup.style.display = 'none';
+        } else if (selectedReportType === 'movimientos_inventario' || selectedReportType === 'envios') {
+            filterLowStockGroup.style.display = 'none';
+            filterDateRangeGroup.style.display = 'flex';
+            filterEndDateGroup.style.display = 'flex';
+        } else { // Para otros reportes futuros
+            filterLowStockGroup.style.display = 'none';
+            filterDateRangeGroup.style.display = 'none';
+            filterEndDateGroup.style.display = 'none';
+        }
+        // Limpiar contenido del reporte al cambiar el tipo
+        reportContentDiv.innerHTML = '<p class="empty-message">Haz clic en "Generar Reporte".</p>';
+        reportTitleElement.textContent = reportTypeSelect.options[reportTypeSelect.selectedIndex].text;
+    });
+
+    generateReportBtn.addEventListener('click', generateReport);
+
+    async function generateReport() {
+        reportContentDiv.innerHTML = '<p class="loading-message">Generando reporte...</p>';
+        generateReportBtn.disabled = true;
+        const selectedReportType = reportTypeSelect.value;
+        const filterLowStock = filterLowStockSelect.value;
+        const startDate = startDateInput.value;
+        const endDate = endDateInput.value;
+
+        reportTitleElement.textContent = reportTypeSelect.options[reportTypeSelect.selectedIndex].text;
+
+        try {
+            let reportData;
+            switch (selectedReportType) {
+                case 'stock_insumos':
+                    reportData = await generateStockReport(filterLowStock);
+                    renderStockReport(reportData);
+                    break;
+                case 'movimientos_inventario':
+                    reportData = await generateInventoryMovementsReport(startDate, endDate);
+                    renderInventoryMovementsReport(reportData);
+                    break;
+                case 'envios':
+                    reportData = await generateShippingsReport(startDate, endDate);
+                    renderShippingsReport(reportData);
+                    break;
+                default:
+                    reportContentDiv.innerHTML = '<p class="empty-message">Tipo de reporte no reconocido.</p>';
+                    showNotification('Tipo de reporte no reconocido.', 'error');
+            }
+        } catch (error) {
+            console.error('Error al generar reporte:', error);
+            reportContentDiv.innerHTML = `<p class="error-message">Error al generar reporte: ${error.message}</p>`;
+            showNotification(`Error al generar reporte: ${error.message}`, 'error');
+        } finally {
+            generateReportBtn.disabled = false;
+        }
+    }
+
+    // --- Implementación de Reportes Individuales ---
+
+    // Reporte de Stock de Insumos
+    async function generateStockReport(filterType) {
+        const insumosCollection = collection(db, 'insumos');
+        const qInsumos = query(insumosCollection, orderBy('nombre', 'asc'));
+        const insumosSnapshot = await getDocs(qInsumos);
+
+        const reportData = [];
+        for (const insumoDoc of insumosSnapshot.docs) {
+            const insumo = { id: insumoDoc.id, ...insumoDoc.data() };
+            
+            // Fetch associated lots for each insumo
+            const lotesCollection = collection(db, 'lotes');
+            const qLotes = query(lotesCollection, where('insumo_id', '==', insumo.id));
+            const lotesSnapshot = await getDocs(qLotes);
+            insumo.lotes = lotesSnapshot.docs.map(loteDoc => ({ id: loteDoc.id, ...loteDoc.data() }));
+
+            // Calculate total existence and check stock status
+            let totalExistencia = (insumo.lotes || []).reduce((sum, lote) => sum + (lote.existencia || 0), 0);
+            let status = 'ok';
+            if (totalExistencia <= (insumo.stock_minimo || 0)) {
+                status = 'low_stock';
+            }
+
+            // Apply "only low stock" filter
+            if (filterType === 'low_stock' && status !== 'low_stock') {
+                continue; // Skip if not low stock and filter is active
+            }
+
+            reportData.push({
+                nombre: insumo.nombre,
+                stock_minimo: insumo.stock_minimo || 0,
+                existencia_actual: totalExistencia,
+                ubicacion: insumo.ubicacion || 'N/A',
+                status: status,
+                lotes: insumo.lotes // Include lotes for detailed view if needed later
+            });
+        }
+        return reportData;
+    }
+
+    function renderStockReport(data) {
+        if (data.length === 0) {
+            reportContentDiv.innerHTML = '<p class="empty-message">No se encontraron insumos para este reporte.</p>';
+            return;
+        }
+
+        let tableHtml = `
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Nombre Insumo</th>
+                        <th>Existencia Actual</th>
+                        <th>Stock Mínimo</th>
+                        <th>Estado de Stock</th>
+                        <th>Ubicación</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        data.forEach(item => {
+            const statusClass = item.status === 'low_stock' ? 'report-status-low' : 'report-status-ok';
+            const statusText = item.status === 'low_stock' ? 'Bajo' : 'OK';
+            tableHtml += `
+                <tr>
+                    <td data-label="Nombre Insumo">${item.nombre}</td>
+                    <td data-label="Existencia Actual">${item.existencia_actual}</td>
+                    <td data-label="Stock Mínimo">${item.stock_minimo}</td>
+                    <td data-label="Estado de Stock" class="${statusClass}">${statusText}</td>
+                    <td data-label="Ubicación">${item.ubicacion || 'N/A'}</td>
+                </tr>
+            `;
+        });
+        tableHtml += `
+                </tbody>
+            </table>
+        `;
+        reportContentDiv.innerHTML = tableHtml;
+    }
+
+    // Reporte de Movimientos de Inventario
+    async function generateInventoryMovementsReport(startDate, endDate) {
+        const transactionsCollection = collection(db, 'transacciones_inventario');
+        let qTransactions = query(transactionsCollection, orderBy('created_at', 'desc'));
+
+        // Apply date filters
+        if (startDate) {
+            qTransactions = query(qTransactions, where('created_at', '>=', startDate));
+        }
+        if (endDate) {
+            // End date should include the whole day, so query up to the start of next day
+            const endOfDay = new Date(endDate);
+            endOfDay.setDate(endOfDay.getDate() + 1);
+            qTransactions = query(qTransactions, where('created_at', '<', endOfDay.toISOString().slice(0, 10)));
+        }
+
+        const transactionsSnapshot = await getDocs(qTransactions);
+        const reportData = [];
+
+        for (const transDoc of transactionsSnapshot.docs) {
+            const trans = { id: transDoc.id, ...transDoc.data() };
+
+            // Fetch related insumo and lote data
+            let insumoNombre = 'N/A';
+            if (trans.insumo_id) {
+                const insumoSnap = await getDoc(doc(db, 'insumos', trans.insumo_id));
+                if (insumoSnap.exists()) {
+                    insumoNombre = insumoSnap.data().nombre;
+                } else {
+                    insumoNombre = `Insumo [ID: ${trans.insumo_id.substring(0, 8)}...] (Eliminado)`;
+                }
+            }
+
+            let loteInfo = 'N/A';
+            if (trans.lote_id) {
+                const loteSnap = await getDoc(doc(db, 'lotes', trans.lote_id));
+                if (loteSnap.exists()) {
+                    const loteData = loteSnap.data();
+                    loteInfo = `Lote: ${loteData.lote || 'N/A'} (Cad: ${formatFecha(loteData.fecha_caducidad)})`;
+                } else {
+                    loteInfo = `Lote [ID: ${trans.lote_id.substring(0, 8)}...] (Eliminado)`;
+                }
+            }
+
+            reportData.push({
+                fecha: trans.created_at,
+                insumo_nombre: insumoNombre,
+                lote_info: loteInfo,
+                tipo: trans.tipo,
+                cantidad: trans.cantidad,
+                responsable: trans.responsable || 'Desconocido',
+                referencia: trans.referencia || 'N/A',
+                comentarios: trans.comentarios || 'N/A'
+            });
+        }
+        return reportData;
+    }
+
+    function renderInventoryMovementsReport(data) {
+        if (data.length === 0) {
+            reportContentDiv.innerHTML = '<p class="empty-message">No se encontraron movimientos de inventario para este reporte.</p>';
+            return;
+        }
+
+        let tableHtml = `
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Insumo</th>
+                        <th>Lote</th>
+                        <th>Tipo</th>
+                        <th>Cantidad</th>
+                        <th>Responsable</th>
+                        <th>Referencia</th>
+                        <th>Comentarios</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        data.forEach(item => {
+            const tipoClass = item.tipo === 'entrada' ? 'report-status-entrada' : (item.tipo === 'salida' ? 'report-status-salida' : 'report-status-ajuste');
+            tableHtml += `
+                <tr>
+                    <td data-label="Fecha">${formatDateTime(item.fecha)}</td>
+                    <td data-label="Insumo">${item.insumo_nombre}</td>
+                    <td data-label="Lote">${item.lote_info}</td>
+                    <td data-label="Tipo" class="${tipoClass}">${item.tipo.charAt(0).toUpperCase() + item.tipo.slice(1)}</td>
+                    <td data-label="Cantidad">${item.cantidad}</td>
+                    <td data-label="Responsable">${item.responsable}</td>
+                    <td data-label="Referencia">${item.referencia}</td>
+                    <td data-label="Comentarios">${item.comentarios}</td>
+                </tr>
+            `;
+        });
+        tableHtml += `
+                </tbody>
+            </table>
+        `;
+        reportContentDiv.innerHTML = tableHtml;
+    }
+
+    // Reporte de Envíos
+    async function generateShippingsReport(startDate, endDate) {
+        const enviosCollection = collection(db, 'envios');
+        let qEnvios = query(enviosCollection, orderBy('created_at', 'desc')); // Order by creation date or fecha_envio
+
+        // Apply date filters
+        if (startDate) {
+            qEnvios = query(qEnvios, where('created_at', '>=', startDate));
+        }
+        if (endDate) {
+            const endOfDay = new Date(endDate);
+            endOfDay.setDate(endOfDay.getDate() + 1);
+            qEnvios = query(qEnvios, where('created_at', '<', endOfDay.toISOString().slice(0, 10)));
+        }
+
+        const enviosSnapshot = await getDocs(qEnvios);
+        const reportData = [];
+
+        for (const envioDoc of enviosSnapshot.docs) {
+            const envio = { id: envioDoc.id, ...envioDoc.data() };
+
+            // Fetch associated product details
+            let productoNombre = 'N/A';
+            if (envio.producto_id) {
+                const productSnap = await getDoc(doc(db, 'productos', envio.producto_id));
+                if (productSnap.exists()) {
+                    productoNombre = productSnap.data().nombre;
+                } else {
+                    productoNombre = `Producto [ID: ${envio.producto_id.substring(0, 8)}...] (Eliminado)`;
+                }
+            }
+
+            reportData.push({
+                fecha_envio: envio.fecha_envio,
+                destinatario: envio.destinatario,
+                direccion_envio: envio.direccion_envio,
+                contenido_descripcion: envio.contenido_descripcion,
+                numero_rastreo: envio.numero_rastreo || 'N/A',
+                paqueteria: envio.paqueteria || 'N/A',
+                estado_envio: envio.estado_envio,
+                responsable_envio: envio.responsable_envio || 'Desconocido',
+                comentarios: envio.comentarios || 'N/A',
+                producto_nombre: productoNombre
+            });
+        }
+        return reportData;
+    }
+
+    function renderShippingsReport(data) {
+        if (data.length === 0) {
+            reportContentDiv.innerHTML = '<p class="empty-message">No se encontraron envíos para este reporte.</p>';
+            return;
+        }
+
+        let tableHtml = `
+            <table class="report-table">
+                <thead>
+                    <tr>
+                        <th>Fecha Envío</th>
+                        <th>Destinatario</th>
+                        <th>Producto</th>
+                        <th>Dirección</th>
+                        <th>Contenido</th>
+                        <th>No. Rastreo</th>
+                        <th>Paquetería</th>
+                        <th>Estado</th>
+                        <th>Responsable</th>
+                    </tr>
+                </thead>
+                <tbody>
+        `;
+        data.forEach(item => {
+            let statusClass = '';
+            switch (item.estado_envio) {
+                case 'pendiente': statusClass = 'report-status-pendiente'; break;
+                case 'en transito': statusClass = 'report-status-en-transito'; break;
+                case 'entregado': statusClass = 'report-status-entregado'; break;
+                case 'retorno': case 'cancelado': statusClass = 'report-status-salida'; break; // Usar color de error/salida
+                default: statusClass = '';
+            }
+            tableHtml += `
+                <tr>
+                    <td data-label="Fecha Envío">${formatFecha(item.fecha_envio)}</td>
+                    <td data-label="Destinatario">${item.destinatario}</td>
+                    <td data-label="Producto">${item.producto_nombre}</td>
+                    <td data-label="Dirección">${item.direccion_envio}</td>
+                    <td data-label="Contenido">${item.contenido_descripcion}</td>
+                    <td data-label="No. Rastreo">${item.numero_rastreo}</td>
+                    <td data-label="Paquetería">${item.paqueteria}</td>
+                    <td data-label="Estado" class="${statusClass}">${item.estado_envio.charAt(0).toUpperCase() + item.estado_envio.slice(1)}</td>
+                    <td data-label="Responsable">${item.responsable_envio}</td>
+                </tr>
+            `;
+        });
+        tableHtml += `
+                </tbody>
+            </table>
+        `;
+        reportContentDiv.innerHTML = tableHtml;
+    }
+
+    // --- Carga Inicial ---
+    // La lógica de `reportTypeSelect.addEventListener('change')` se encargará de configurar los filtros
+    // al cargar la página se ejecuta `generateReport()` directamente en `onAuthStateChanged`.
+    window.addEventListener('load', () => {
+        reportTypeSelect.dispatchEvent(new Event('change')); // Dispara el evento para configurar los filtros iniciales
+    });
+
+  </script>
+</body>
+</html>

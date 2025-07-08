@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LabFlow Manager - Iniciar Sesión</title>
+    <!-- Fuentes de Google y Material Design Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <!-- Enlace a tu archivo CSS personalizado -->
+    <link rel="stylesheet" href="app/css/styles.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="app-brand">
+            <i class="mdi mdi-beaker-outline logo-icon"></i>
+            <h1>LabFlow Manager</h1>
+        </div>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email-username-field">Email o Nombre de Usuario</label>
+                <input type="text" id="email-username-field" required placeholder="tu.email@ejemplo.com">
+            </div>
+            <div class="form-group">
+                <label for="password-field">Contraseña</label>
+                <input type="password" id="password-field" required placeholder="••••••••">
+                <div class="error-message" id="error-message"></div>
+            </div>
+            <button type="submit" class="btn btn-primary" id="login-btn">
+                <span class="material-symbols-outlined">login</span>
+                <span>Iniciar Sesión</span>
+            </button>
+        </form>
+    </div>
+
+    <div id="app-notification"></div>
+
+    <!-- Script para la lógica de inicio de sesión -->
+    <script type="module" src="app/js/login-script.js"></script>
+</body>
+</html>

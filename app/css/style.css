@@ -1,0 +1,115 @@
+/* app/css/styles.css */
+
+:root {
+    --background-body: #f0f4f8;
+    --background-container: #ffffff;
+    --text-primary: #2c3e50;
+    --text-secondary: #607d8b;
+    --border-color: #d1d9e6;
+    --shadow-color: rgba(44, 62, 80, 0.15);
+    --accent-glow-start: rgba(129, 212, 250, 0.5);
+    --accent-glow-end: rgba(79, 195, 247, 0.5);
+    --accent-primary: #81d4fa;
+    --accent-secondary: #4fc3f7;
+    --action-error: #ef5350;
+    --font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: var(--font-family);
+    background-color: var(--background-body);
+    background-image:
+        radial-gradient(ellipse at 10% 90%, var(--accent-glow-start), transparent 50%),
+        radial-gradient(ellipse at 90% 10%, var(--accent-glow-end), transparent 50%);
+    color: var(--text-primary);
+    display: flex;
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    animation: fadeIn 1s ease-in-out;
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.login-container {
+    background-color: var(--background-container);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 10px 40px var(--shadow-color);
+    max-width: 450px;
+    width: 100%;
+    text-align: center;
+    animation: slideUp 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+@keyframes slideUp { from { transform: translateY(40px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.app-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+.app-brand .logo-icon {
+    font-size: 3.5rem;
+    color: var(--accent-secondary);
+}
+ 
+/* Estilo del nombre de la app con degradado */
+.app-brand h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(45deg, var(--accent-secondary), var(--accent-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+}
+
+#loginForm { text-align: left; }
+.form-group { margin-bottom: 20px; }
+.form-group label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem; }
+ 
+input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 14px 18px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background-color: var(--background-body);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+input:focus {
+    outline: none;
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.3);
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+    width: 100%;
+    margin-top: 15px;
+    padding: 14px 30px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(79, 195, 247, 0.4);
+}
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+.error-message { color: var(--action-error); font-size: 0.85rem; margin-top: 8px; min-height: 1.2em; }

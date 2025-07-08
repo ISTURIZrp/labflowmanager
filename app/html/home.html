@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LabFlow Manager - Panel de Control</title>
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+    <header class="top-bar">
+        <div class="app-brand">
+            <i class="mdi mdi-beaker-outline logo-icon"></i>
+            <h1>LabFlow Manager</h1>
+        </div>
+        <div class="user-info-box" id="user-info-box">
+            <div class="user-details">
+                <div id="user-name-display">Cargando...</div>
+                <small id="user-role-display">...</small>
+            </div>
+            <i class="mdi mdi-account-circle-outline"></i>
+        </div>
+    </header>
+
+    <main class="page-container" id="page-container">
+        <div class="header-dashboard">
+            <h1>Panel de Control</h1>
+            <p>Selecciona un módulo para comenzar</p>
+        </div>
+
+        <div class="tiles-container">
+            <a href="inventory.html" class="tile">
+                <i class="mdi mdi-clipboard-list-outline"></i>
+                <span>Insumos</span>
+            </a>
+            <a href="productos.html" class="tile"> 
+                <i class="mdi mdi-cube-outline"></i>
+                <span>Productos</span>
+            </a>
+            <a href="entradas-salidas.html" class="tile">
+                <i class="mdi mdi-swap-horizontal"></i>
+                <span>Entradas / Salidas</span>
+            </a>
+            <a href="envios.html" class="tile">
+                <i class="mdi mdi-truck-fast-outline"></i>
+                <span>Envíos</span>
+            </a>
+            <a href="equipos.html" class="tile">
+                <i class="mdi mdi-cogs"></i>
+                <span>Equipos</span>
+            </a>
+            <a href="users.html" class="tile">
+                <i class="mdi mdi-account-cog-outline"></i>
+                <span>Usuarios</span>
+            </a>
+            <a href="reportes.html" class="tile">
+                <i class="mdi mdi-chart-bar-stacked"></i>
+                <span>Reportes</span>
+            </a>
+            <button class="tile" id="logout-button">
+                <i class="mdi mdi-logout-variant"></i>
+                <span>Cerrar sesión</span>
+            </button>
+        </div>
+    </main>
+
+    <div id="app-notification"></div>
+
+    <script type="module" src="../js/script.js"></script>
+</body>
+</html>

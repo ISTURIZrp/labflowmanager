@@ -1,0 +1,8 @@
+{
+  "name": "labflow-backend",
+  "version": "1.0.0",
+  "description": "Backend functions for LabFlow Manager",
+  "dependencies": {
+    "firebase-admin": "^12.1.1"
+  }
+}

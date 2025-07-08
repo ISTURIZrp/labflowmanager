@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LabFlow Manager - Entradas y Salidas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+
+    <style>
+        /* 1. Variables CSS (Copia y pega este bloque en todos tus HTML) */
+        :root {
+            /* Colores base y de fondo */
+            --background-light: #ffffff;
+            --background-medium: #f0f4f8;
+            --background-dark: #e0e6ec;
+            --text-primary: #2c3e50;
+            --text-secondary: #607d8b;
+            --border-color: #d1d9e6;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+
+            --accent-glow-start: rgba(129, 212, 250, 0.6);
+            --accent-glow-end: rgba(79, 195, 247, 0.6);
+            --accent-primary: #81d4fa;
+            --accent-secondary: #4fc3f7;
+
+            --action-success: #66bb6a;
+            --action-error: #ef5350;
+            --action-info: #42a5f5;
+            --action-warning: #ffa726;
+
+            --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+            --sidebar-width-collapsed: 60px;
+            --sidebar-width-expanded: 240px;
+        }
+
+        /* 2. Estilos CSS Globales y Comunes (Copia y pega este bloque en todos tus HTML) */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family);
+            /* Usa la nueva fuente */
+            background: var(--background-light);
+            /* Fondo principal blanco */
+            background-image:
+                radial-gradient(ellipse at 10% 90%, var(--accent-glow-start), transparent 50%),
+                radial-gradient(ellipse at 90% 10%, var(--accent-glow-end), transparent 50%);
+            color: var(--text-primary);
+            /* Texto principal azul oscuro */
+            display: flex;
+            /* Para layout de sidebar + contenido */
+            min-height: 100vh;
+            overflow-x: hidden;
+            /* Evita scroll horizontal */
+            animation: fadeIn 1s ease-in-out;
+            /* Animación de entrada suave */
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Estilos para contenedores de página y envoltorios de contenido (reutilizados para modal, etc.) */
+        .login-container,
+        .page-container,
+        .main-container,
+        .content-wrapper,
+        #transactionFormContainer {
+            background-color: var(--background-medium);
+            /* Fondo gris azulado claro */
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            /* Bordes ligeramente más redondeados */
+            padding: 30px;
+            /* Más padding para un aspecto más amplio */
+            backdrop-filter: blur(8px);
+            /* Efecto de cristal esmerilado más suave */
+            -webkit-backdrop-filter: blur(8px);
+            box-shadow: 0 8px 25px var(--shadow-color);
+            /* Sombra suave */
+            transition: transform 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        h1,
+        h2 {
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        p {
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            font-family: var(--font-family);
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease, transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(79, 195, 247, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background-color: var(--background-dark);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #dbe2e9;
+            border-color: #c0c6ce;
+        }
+
+        .btn-edit {
+            background-color: rgba(79, 195, 247, 0.2);
+            color: var(--accent-secondary);
+        }
+
+        .btn-edit:hover {
+            background-color: rgba(79, 195, 247, 0.4);
+        }
+
+        .btn-delete {
+            background-color: rgba(239, 83, 80, 0.2);
+            color: var(--action-error);
+        }
+
+        .btn-delete:hover {
+            background-color: rgba(239, 83, 80, 0.4);
+        }
+
+        .btn-info-action {
+            background-color: rgba(66, 165, 245, 0.2);
+            color: var(--action-info);
+        }
+
+        .btn-info-action:hover {
+            background-color: rgba(66, 165, 245, 0.4);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        input[type="date"],
+        input[type="search"],
+        select,
+        textarea {
+            /* Added select, textarea */
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--background-dark);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        input::placeholder,
+        textarea::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.8;
+        }
+
+        /* Added textarea */
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-secondary);
+            box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.3);
+        }
+
+        /* Added select, textarea */
+
+        /* Mensajes de error en formularios */
+        .error-message {
+            color: var(--action-error);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            text-align: left;
+        }
+
+        /* Componentes de la Interfaz: Notificaciones */
+        #app-notification {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            padding: 12px 25px;
+            border-radius: 8px;
+            color: white;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+            transform: translateX(100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        #app-notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        #app-notification.success {
+            background-color: var(--action-success);
+        }
+
+        #app-notification.error {
+            background-color: var(--action-error);
+        }
+
+        #app-notification.info {
+            background-color: var(--action-info);
+        }
+
+
+        /* --- Estilos Específicos para Páginas de Módulo (inventory.html, entradas-salidas.html, users.html, equipos.html, envios.html, productos.html) --- */
+        body {
+            display: flex;
+            flex-direction: row;
+            /* Sidebar y main en fila */
+            align-items: stretch;
+            /* Estira el contenido verticalmente */
+            background-image: none;
+            /* Sin glow para un fondo más limpio */
+            background-color: var(--background-light);
+            /* Fondo del contenido de la página */
+        }
+
+        /* Menú lateral - Estado colapsado por defecto */
+        nav#sidebar {
+            width: var(--sidebar-width-collapsed);
+            background: var(--background-medium);
+            /* Sidebar con fondo medio */
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            transition: width 0.3s ease-in-out;
+            position: fixed;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 1000;
+            box-shadow: 2px 0 8px var(--shadow-color);
+            border-right: 1px solid var(--border-color);
+            /* Borde derecho sutil */
+        }
+
+        nav#sidebar:hover {
+            width: var(--sidebar-width-expanded);
+        }
+
+        nav#sidebar header {
+            padding: 1.2rem 1rem;
+            font-weight: 700;
+            font-size: 0;
+            /* Oculta el texto por defecto */
+            user-select: none;
+            text-align: center;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--background-dark);
+            /* Cabecera del sidebar más oscura */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            transition: font-size 0.3s ease, padding 0.3s ease;
+        }
+
+        nav#sidebar:hover header {
+            font-size: 1.3rem;
+            padding: 1.2rem 1rem;
+        }
+
+        #user-info {
+            padding: 1rem 1.2rem;
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            opacity: 0;
+            height: 0;
+            overflow: hidden;
+            transition: opacity 0.3s ease, height 0.3s ease, padding 0.3s ease;
+        }
+
+        nav#sidebar:hover #user-info {
+            opacity: 1;
+            height: auto;
+            padding: 1rem 1.2rem;
+        }
+
+        #user-info .material-symbols-outlined {
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+            color: var(--accent-secondary);
+            /* Color de acento para el icono de usuario */
+        }
+
+        #user-email-display-sidebar {
+            /* ID específico para el email en sidebar */
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--text-secondary);
+        }
+
+        #user-logout-btn-sidebar {
+            /* ID específico para el botón en sidebar */
+            background: var(--background-dark);
+            /* Color más oscuro para el botón de logout del sidebar */
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background-color 0.2s ease, border-color 0.2s ease;
+        }
+
+        #user-logout-btn-sidebar:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-color: rgba(0, 0, 0, 0.3);
+        }
+
+
+        /* Elementos de la lista del menú */
+        nav#sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        nav#sidebar ul li {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        nav#sidebar ul li a {
+            display: flex;
+            align-items: center;
+            color: var(--text-primary);
+            text-decoration: none;
+            padding: 1rem 1.2rem;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        nav#sidebar ul li a:hover {
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-primary);
+        }
+
+        nav#sidebar ul li a .material-symbols-outlined {
+            margin-right: 0;
+            font-size: 1.6rem;
+            transition: margin-right 0.3s ease;
+        }
+
+        nav#sidebar:hover ul li a .material-symbols-outlined {
+            margin-right: 1rem;
+        }
+
+        nav#sidebar ul li a span.text {
+            display: none;
+            transition: opacity 0.3s ease;
+            opacity: 0;
+            width: 0;
+        }
+
+        nav#sidebar:hover ul li a span.text {
+            display: inline;
+            opacity: 1;
+            width: auto;
+        }
+
+        /* El botón de toggle de la barra lateral está oculto */
+        #btnToggleSidebar {
+            display: none;
+        }
+
+
+        /* Contenido principal de la página de módulo */
+        main#content {
+            flex-grow: 1;
+            margin-left: var(--sidebar-width-collapsed);
+            /* Margen inicial */
+            padding: 2rem 3rem 4rem 3rem;
+            transition: margin-left 0.3s ease-in-out;
+            background-color: var(--background-light);
+            /* Fondo del contenido de la página */
+        }
+
+        nav#sidebar:hover+main#content {
+            margin-left: var(--sidebar-width-expanded);
+        }
+
+        header.page-header {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            user-select: none;
+            color: var(--text-primary);
+        }
+
+        #btnBackMenu {
+            background: var(--background-dark);
+            /* Botón de regreso */
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 1rem;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            /* Más redondeado */
+            cursor: pointer;
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            margin-bottom: 1.5rem;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        #btnBackMenu:hover {
+            background: rgba(0, 0, 0, 0.1);
+            /* Ligeramente más oscuro en hover */
+            border-color: rgba(0, 0, 0, 0.3);
+        }
+
+        .content-wrapper {
+            padding: 30px;
+        }
+
+        /* Controles de la tabla (buscador y botones de filtro) */
+        .table-controls {
+            display: flex;
+            flex-wrap: wrap;
+            /* Permite que los elementos se envuelvan en pantallas pequeñas */
+            gap: 15px;
+            /* Espacio entre los elementos */
+            margin-bottom: 1.5rem;
+            align-items: center;
+        }
+
+        /* El buscador */
+        #searchInput {
+            flex-grow: 1;
+            /* Permite que el buscador ocupe el espacio disponible */
+            min-width: 200px;
+            /* Ancho mínimo para el buscador */
+            max-width: 450px;
+            font-size: 1rem;
+            padding: 0.7rem 1rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--background-dark);
+            color: var(--text-primary);
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        #searchInput:focus {
+            outline: none;
+            border-color: var(--accent-secondary);
+            box-shadow: 0 0 0 3px rgba(79, 195, 247, 0.3);
+        }
+
+        /* Contenedor de botones de filtro */
+        .filter-buttons-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Estilos generales para tablas dentro de content-wrapper */
+        table {
+            width: 100%;
+            margin-top: 30px;
+            border-collapse: separate;
+            border-spacing: 0;
+            box-shadow: 0 4px 15px var(--shadow-color);
+            background: var(--background-medium);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        thead {
+            background: var(--background-dark);
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        th,
+        td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            color: var(--text-primary);
+        }
+
+        th:first-child {
+            border-top-left-radius: 12px;
+        }
+
+        th:last-child {
+            border-top-right-radius: 12px;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover {
+            background: rgba(0, 0, 0, 0.05);
+            cursor: default;
+        }
+
+        /* Estilos específicos para la tabla de historial de transacciones */
+        #pendingTransactionsTable th,
+        #pendingTransactionsTable td,
+        #transactionsHistoryTable th,
+        #transactionsHistoryTable td {
+            /* Reutiliza estilos de tabla general */
+        }
+
+        .transaction-type.entrada {
+            color: var(--action-success);
+            font-weight: 500;
+        }
+
+        .transaction-type.salida {
+            color: var(--action-error);
+            font-weight: 500;
+        }
+
+        .transaction-type.ajuste {
+            color: var(--action-info);
+            font-weight: 500;
+        }
+
+        /* Estilos para el formulario de transacción única */
+        #singleTransactionForm {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        #singleTransactionForm .full-width {
+            grid-column: span 2;
+        }
+
+        #singleTransactionForm label {
+            margin-top: 0;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            color: var(--text-primary);
+        }
+
+        #singleTransactionForm input,
+        #singleTransactionForm select,
+        #singleTransactionForm textarea {
+            margin-top: 0;
+            background-color: var(--background-dark);
+            color: var(--text-primary);
+        }
+
+        #singleTransactionForm .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #singleTransactionForm .radio-group {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        #singleTransactionForm .radio-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-weight: normal;
+            margin-top: 0;
+        }
+
+        #singleTransactionForm .radio-group input[type="radio"] {
+            width: auto;
+            margin: 0;
+            accent-color: var(--accent-primary);
+            cursor: pointer;
+        }
+
+        /* Títulos de sección */
+        .section-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 25px;
+        }
+
+        /* Estilos para las tablas (pendiente e historial) */
+        #pendingTransactionsTable,
+        #transactionsHistoryTable {
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        #pendingTransactionsTable thead,
+        #transactionsHistoryTable thead {
+            background: var(--background-dark);
+        }
+
+        #pendingTransactionsTable th,
+        #pendingTransactionsTable td,
+        #transactionsHistoryTable th,
+        #transactionsHistoryTable td {
+            padding: 12px 15px;
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        #pendingTransactionsTable tbody tr:hover,
+        #transactionsHistoryTable tbody tr:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        #pendingTransactionsTable tbody tr:last-child td,
+        #transactionsHistoryTable tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Botones de acción en tablas (eliminar pendiente y eliminar historial) */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-buttons .btn-remove-pending {
+            background-color: rgba(239, 83, 80, 0.2);
+            color: var(--action-error);
+            padding: 6px 10px;
+            font-size: 0.85rem;
+            box-shadow: none;
+        }
+
+        .action-buttons .btn-remove-pending:hover {
+            background-color: rgba(239, 83, 80, 0.4);
+        }
+
+        .action-buttons .btn-delete-history {
+            /* Nuevo estilo para eliminar historial */
+            background-color: rgba(239, 83, 80, 0.2);
+            color: var(--action-error);
+            padding: 6px 10px;
+            font-size: 0.85rem;
+            box-shadow: none;
+        }
+
+        .action-buttons .btn-delete-history:hover {
+            background-color: rgba(239, 83, 80, 0.4);
+        }
+
+        /* Botón Confirmar Todas las Transacciones */
+        #confirmAllTransactionsBtn {
+            background: var(--action-success);
+            color: white;
+            font-size: 1.1rem;
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        }
+
+        #confirmAllTransactionsBtn:hover {
+            background: #5cb85c;
+            transform: translateY(-2px);
+        }
+
+        /* Mensajes de carga/vacío en tablas */
+        .loading-message,
+        .empty-message {
+            text-align: center;
+            padding: 1.5rem;
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .error-message {
+            color: var(--action-error);
+            text-align: center;
+            padding: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            main#content {
+                padding: 1.5rem;
+            }
+
+            .content-wrapper {
+                padding: 20px;
+            }
+
+            #singleTransactionForm {
+                grid-template-columns: 1fr;
+            }
+
+            #singleTransactionForm .full-width {
+                grid-column: span 1;
+            }
+
+            table thead {
+                display: none;
+            }
+
+            table tr {
+                display: block;
+                margin-bottom: 15px;
+                border: 1px solid var(--border-color);
+                border-radius: 10px;
+                padding: 15px;
+                background-color: var(--background-medium);
+            }
+
+            table td {
+                display: flex;
+                justify-content: space-between;
+                padding: 8px 0;
+                border-bottom: none;
+            }
+
+            table td::before {
+                content: attr(data-label);
+                font-weight: bold;
+                color: var(--text-secondary);
+                flex-shrink: 0;
+                margin-right: 10px;
+            }
+
+            table td:last-child {
+                justify-content: flex-end;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav id="sidebar" aria-label="Menú lateral">
+        <header>LabFlow Manager</header>
+        <ul>
+            <li><a href="home.html"><span class="material-symbols-outlined">home</span> <span class="text">Inicio</span></a></li>
+            <li><a href="inventory.html"><span class="material-symbols-outlined">inventory_2</span> <span class="text">Insumos</span></a></li>
+            <li><a href="entradas-salidas.html"><span class="material-symbols-outlined">fact_check</span> <span class="text">Entradas/Salidas</span></a></li>
+            <li><a href="envios.html"><span class="material-symbols-outlined">send</span> <span class="text">Envíos</span></a></li>
+            <li><a href="users.html"><span class="material-symbols-outlined">groups</span> <span class="text">Usuarios</span></a></li>
+            <li><a href="equipos.html"><span class="material-symbols-outlined">build</span> <span class="text">Equipos</span></a></li>
+            <li><a href="reportes.html"><span class="material-symbols-outlined">bar_chart</span> <span class="text">Reportes</span></a></li>
+        </ul>
+        <div id="user-info">
+            <span class="material-symbols-outlined">account_circle</span>
+            <div id="user-email-display-sidebar">Verificando sesión...</div>
+            <button id="user-logout-btn-sidebar" class="btn-secondary">Cerrar Sesión</button>
+        </div>
+    </nav>
+
+    <main id="content" tabindex="-1">
+        <header class="page-header">Gestión de Entradas y Salidas</header>
+        <button id="btnBackMenu" class="btn-secondary" title="Volver al menú principal">← Volver al menú</button>
+
+        <div class="content-wrapper">
+            <h2 class="section-title">Registrar Transacciones Pendientes</h2>
+
+            <form id="singleTransactionForm">
+                <div class="form-group">
+                    <label for="insumoSelect">Insumo:</label>
+                    <select id="insumoSelect" required disabled>
+                        <option value="">Cargando insumos...</option>
+                    </select>
+                    <div id="errorInsumo" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>Tipo de Transacción:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="tipoTransaccion" value="entrada" required> Entrada</label>
+                        <label><input type="radio" name="tipoTransaccion" value="salida"> Salida</label>
+                        <label><input type="radio" name="tipoTransaccion" value="ajuste"> Ajuste</label>
+                    </div>
+                    <div id="errorTipo" class="error-message"></div>
+                </div>
+
+                <div class="form-group" id="loteSelectGroup">
+                    <label for="loteSelect">Lote (existente):</label>
+                    <select id="loteSelect">
+                        <option value="">Selecciona un lote</option>
+                    </select>
+                    <div id="errorLote" class="error-message"></div>
+                </div>
+
+                <div class="form-group" id="nuevoLoteGroup">
+                    <label for="nuevoLoteInput">Nuevo Lote:</label>
+                    <input type="text" id="nuevoLoteInput" placeholder="Ingresa un nuevo lote">
+                    <div id="errorNuevoLote" class="error-message"></div>
+                </div>
+
+                <div class="form-group" id="fechaCaducidadNuevoLoteGroup">
+                    <label for="fechaCaducidadNuevoLote">Caducidad Nuevo Lote:</label>
+                    <input type="date" id="fechaCaducidadNuevoLote">
+                    <div id="errorFechaCaducidadNuevoLote" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cantidad">Cantidad:</label>
+                    <input type="number" id="cantidad" min="1" required>
+                    <div id="errorCantidad" class="error-message"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="referencia">Referencia (ej. Factura #):</label>
+                    <input type="text" id="referencia" placeholder="Opcional">
+                </div>
+
+                <div class="form-group">
+                    <label for="ubicacion">Ubicación (opcional):</label>
+                    <input type="text" id="ubicacion" placeholder="Opcional">
+                </div>
+
+                <div class="form-group full-width">
+                    <label for="comentarios">Comentarios:</label>
+                    <textarea id="comentarios" rows="3" placeholder="Opcional"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="addToListBtn">
+                    <span class="material-symbols-outlined">add_box</span> Añadir a la Lista
+                </button>
+            </form>
+
+            <h2 class="section-title" style="margin-top: 40px;">Artículos Pendientes de Confirmar</h2>
+            <table id="pendingTransactionsTable">
+                <thead>
+                    <tr>
+                        <th>Insumo</th>
+                        <th>Lote</th>
+                        <th>Caducidad</th>
+                        <th>Tipo</th>
+                        <th>Cantidad</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="pendingTransactionsTableBody">
+                    <tr>
+                        <td colspan="6" class="empty-message">No hay artículos pendientes.</td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="btn btn-primary full-width" id="confirmAllTransactionsBtn" style="margin-top: 20px;">
+                <span class="material-symbols-outlined">done_all</span> Confirmar Todas las Transacciones
+            </button>
+
+            <h2 class="section-title" style="margin-top: 40px;">Historial de Transacciones</h2>
+            <table id="transactionsHistoryTable">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Insumo</th>
+                        <th>Lote</th>
+                        <th>Tipo</th>
+                        <th>Cantidad</th>
+                        <th>Responsable</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="transactionsHistoryTableBody">
+                    <tr>
+                        <td colspan="7" class="loading-message">Cargando historial...</td>
+                    </tr>
+                </tbody>
+            </table>
+            <div id="history-pagination-loading-message" class="loading-message" style="display: none;">
+                Cargando más historial...
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        // --- Firebase SDKs ---
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+        import {
+            getFirestore,
+            collection,
+            query,
+            where,
+            orderBy,
+            limit,
+            startAfter,
+            getDocs,
+            doc,
+            getDoc,
+            addDoc,
+            updateDoc,
+            runTransaction,
+            writeBatch,
+            deleteDoc,
+            serverTimestamp // Import serverTimestamp
+        } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+        // ** TU OBJETO firebaseConfig DE LA CONSOLA DE FIREBASE **
+        const firebaseConfig = {
+            apiKey: "AIzaSyCxJOpBEXZUo7WrAqDTrlJV_2kJBsL8Ym0",
+            authDomain: "labflow-manager.firebaseapp.com",
+            projectId: "labflow-manager",
+            storageBucket: "labflow-manager.firebasestorage.app",
+            messagingSenderId: "742212306654",
+            appId: "1:742212306654:web:a53bf890fc63cd5d05e44f",
+            measurementId: "G-YVZDBCJR3B"
+        };
+
+        // Inicializa Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- Elementos DOM ---
+        const btnBackMenu = document.getElementById('btnBackMenu');
+        const userEmailDisplaySidebar = document.getElementById('user-email-display-sidebar');
+        const userLogoutBtnSidebar = document.getElementById('user-logout-btn-sidebar');
+
+        const singleTransactionForm = document.getElementById('singleTransactionForm');
+        const insumoSelect = document.getElementById('insumoSelect');
+        const loteSelect = document.getElementById('loteSelect');
+        const nuevoLoteInput = document.getElementById('nuevoLoteInput');
+        const fechaCaducidadNuevoLote = document.getElementById('fechaCaducidadNuevoLote');
+        const tipoTransaccionRadios = document.querySelectorAll('input[name="tipoTransaccion"]');
+        const cantidadInput = document.getElementById('cantidad');
+        const referenciaInput = document.getElementById('referencia');
+        const ubicacionInput = document.getElementById('ubicacion');
+        const comentariosInput = document.getElementById('comentarios');
+        const addToListBtn = document.getElementById('addToListBtn');
+        const pendingTransactionsTableBody = document.getElementById('pendingTransactionsTableBody');
+        const confirmAllTransactionsBtn = document.getElementById('confirmAllTransactionsBtn');
+        const transactionsHistoryTableBody = document.getElementById('transactionsHistoryTableBody');
+        const historyPaginationLoadingMessage = document.getElementById('history-pagination-loading-message');
+
+        // Grupos de campos para controlar visibilidad
+        const loteSelectGroup = document.getElementById('loteSelectGroup');
+        const nuevoLoteGroup = document.getElementById('nuevoLoteGroup');
+        const fechaCaducidadNuevoLoteGroup = document.getElementById('fechaCaducidadNuevoLoteGroup');
+
+
+        // Errores de formulario
+        const errorInsumo = document.getElementById('errorInsumo');
+        const errorLote = document.getElementById('errorLote');
+        const errorNuevoLote = document.getElementById('errorNuevoLote');
+        const errorFechaCaducidadNuevoLote = document.getElementById('errorFechaCaducidadNuevoLote');
+        const errorTipo = document.getElementById('errorTipo');
+        const errorCantidad = document.getElementById('errorCantidad');
+
+        let currentUserEmail = null;
+        let isAdmin = false; // Variable para controlar permisos de administrador
+        let allInsumosWithLotesCached = []; // Cache de insumos y sus lotes
+        let pendingTransactions = []; // Array para transacciones pendientes
+
+        let historyLastVisibleTransaction = null;
+        const HISTORY_ITEMS_PER_PAGE = 10; // Aumentamos para una paginación más cómoda
+        let historyHasMoreItems = true;
+        let isHistoryLoadingMore = false;
+
+        let notificationDiv = document.createElement('div');
+        notificationDiv.id = 'app-notification';
+        document.body.appendChild(notificationDiv);
+
+        // --- Funciones de Utilidad ---
+        function formatDateTime(dateTimeString) {
+            if (!dateTimeString) return 'N/A';
+            try {
+                // If it's a Firestore Timestamp, convert to Date first
+                let date = dateTimeString;
+                if (typeof dateTimeString === 'object' && dateTimeString.toDate) {
+                    date = dateTimeString.toDate();
+                }
+                return new Date(date).toLocaleString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+                console.warn("Fecha/hora inválida para formatear:", dateTimeString, e);
+                return dateTimeString;
+            }
+        }
+
+        function formatFecha(dateString) {
+            if (!dateString) return 'N/A';
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date)) {
+                    console.warn("Fecha inválida para formatear:", dateString);
+                    return dateString;
+                }
+                return date.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
+            } catch (e) {
+                console.error("Error al formatear fecha:", dateString, e);
+                return dateString;
+            }
+        }
+
+        function showNotification(message, type = 'info') {
+            notificationDiv.textContent = message;
+            notificationDiv.className = '';
+            notificationDiv.classList.add(type);
+            notificationDiv.classList.add('show');
+            setTimeout(() => { notificationDiv.classList.remove('show'); }, 3000);
+        }
+
+        function clearErrorMessages() {
+            errorInsumo.textContent = '';
+            errorLote.textContent = '';
+            errorNuevoLote.textContent = '';
+            errorFechaCaducidadNuevoLote.textContent = '';
+            errorTipo.textContent = '';
+            errorCantidad.textContent = '';
+        }
+
+        // --- Control de Navegación y Sesión (Sidebar) ---
+        btnBackMenu.addEventListener('click', () => {
+            window.location.href = 'home.html';
+        });
+
+        userLogoutBtnSidebar.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                showNotification("Sesión cerrada correctamente.", "info");
+                window.location.href = 'index.html'; // Redirige a la página de login
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error);
+                showNotification("Error al cerrar sesión.", "error");
+            }
+        });
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUserEmail = user.email;
+                userEmailDisplaySidebar.textContent = user.displayName || user.email;
+                await checkUserRole(user.uid);
+                await fetchInsumosAndLotes();
+                await fetchTransactionsHistory(true); // Carga el historial al iniciar la sesión
+            } else {
+                // Si no hay usuario autenticado, redirigir a la página de inicio de sesión
+                window.location.href = 'index.html';
+            }
+        });
+
+        async function checkUserRole(uid) {
+            try {
+                const userDocRef = doc(db, 'users', uid);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                    const userData = userDocSnap.data();
+                    isAdmin = userData.role === 'admin';
+                }
+            } catch (error) {
+                console.error("Error al verificar el rol del usuario:", error);
+                showNotification("Error al cargar los permisos del usuario.", "error");
+            }
+        }
+
+        // --- Funciones para Cargar y Manejar Insumos y Lotes ---
+        async function fetchInsumosAndLotes() {
+            try {
+                insumoSelect.disabled = true;
+                insumoSelect.innerHTML = '<option value="">Cargando insumos...</option>';
+                allInsumosWithLotesCached = [];
+
+                const insumosCol = collection(db, 'insumos');
+                const q = query(insumosCol, orderBy('nombreInsumo'));
+                const querySnapshot = await getDocs(q);
+
+                let optionsHtml = '<option value="">Selecciona un insumo</option>';
+                querySnapshot.forEach(docSnap => {
+                    const insumoData = docSnap.data();
+                    allInsumosWithLotesCached.push({ id: docSnap.id, ...insumoData });
+                    optionsHtml += `<option value="${docSnap.id}">${insumoData.nombreInsumo}</option>`;
+                });
+                insumoSelect.innerHTML = optionsHtml;
+                insumoSelect.disabled = false;
+            } catch (error) {
+                console.error("Error al cargar insumos y lotes:", error);
+                showNotification("Error al cargar la lista de insumos.", "error");
+                insumoSelect.innerHTML = '<option value="">Error al cargar insumos</option>';
+            }
+        }
+
+        function populateLotesForSelectedInsumo(insumoId) {
+            loteSelect.innerHTML = '<option value="">Selecciona un lote</option>';
+            if (!insumoId) {
+                loteSelect.disabled = true;
+                return;
+            }
+
+            const selectedInsumo = allInsumosWithLotesCached.find(insumo => insumo.id === insumoId);
+            if (selectedInsumo && selectedInsumo.lotes && selectedInsumo.lotes.length > 0) {
+                selectedInsumo.lotes.sort((a, b) => {
+                    // Ordenar lotes: los que no tienen fecha de caducidad al final, luego por fecha de caducidad ascendente
+                    const dateA = a.fechaCaducidad ? new Date(a.fechaCaducidad) : null;
+                    const dateB = b.fechaCaducidad ? new Date(b.fechaCaducidad) : null;
+
+                    if (dateA && dateB) {
+                        return dateA.getTime() - dateB.getTime();
+                    }
+                    if (dateA) return -1; // A tiene fecha, B no
+                    if (dateB) return 1;  // B tiene fecha, A no
+                    return 0;             // Ambos sin fecha
+                });
+
+                selectedInsumo.lotes.forEach(lote => {
+                    const caducidadDisplay = lote.fechaCaducidad ? ` (Cad: ${formatFecha(lote.fechaCaducidad)})` : '';
+                    loteSelect.innerHTML += `<option value="${lote.nombreLote}">${lote.nombreLote} - Disp: ${lote.cantidad}${caducidadDisplay}</option>`;
+                });
+                loteSelect.disabled = false;
+            } else {
+                loteSelect.disabled = true;
+                loteSelect.innerHTML = '<option value="">No hay lotes existentes</option>';
+            }
+        }
+
+        // --- Lógica de Formulario de Transacción ---
+        insumoSelect.addEventListener('change', (event) => {
+            clearErrorMessages();
+            const selectedInsumoId = event.target.value;
+            populateLotesForSelectedInsumo(selectedInsumoId);
+            resetLoteAndTipoFields();
+        });
+
+        // Event listener para los radios de tipo de transacción
+        tipoTransaccionRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                clearErrorMessages();
+                const selectedType = document.querySelector('input[name="tipoTransaccion"]:checked').value;
+                handleTransactionTypeChange(selectedType);
+            });
+        });
+
+        function handleTransactionTypeChange(selectedType) {
+            const insumoId = insumoSelect.value;
+            loteSelectGroup.style.display = 'none';
+            nuevoLoteGroup.style.display = 'none';
+            fechaCaducidadNuevoLoteGroup.style.display = 'none';
+
+            // Resetear valores de los campos
+            loteSelect.value = '';
+            nuevoLoteInput.value = '';
+            fechaCaducidadNuevoLote.value = '';
+
+            if (insumoId) {
+                if (selectedType === 'entrada') {
+                    // Para entradas, se pueden añadir a un lote existente o crear uno nuevo
+                    loteSelectGroup.style.display = 'flex';
+                    nuevoLoteGroup.style.display = 'flex';
+                    fechaCaducidadNuevoLoteGroup.style.display = 'flex';
+                    loteSelect.setAttribute('required', '');
+                    nuevoLoteInput.setAttribute('required', '');
+                    fechaCaducidadNuevoLote.setAttribute('required', '');
+                } else if (selectedType === 'salida' || selectedType === 'ajuste') {
+                    // Para salidas y ajustes, solo se puede seleccionar un lote existente
+                    loteSelectGroup.style.display = 'flex';
+                    loteSelect.setAttribute('required', '');
+                    nuevoLoteInput.removeAttribute('required');
+                    fechaCaducidadNuevoLote.removeAttribute('required');
+                }
+            } else {
+                // Si no hay insumo seleccionado, no mostrar opciones de lote/nuevo lote
+                showNotification("Primero selecciona un insumo.", "warning");
+                loteSelect.disabled = true;
+            }
+        }
+
+        // Resetear campos de lote y tipo cuando se cambia el insumo
+        function resetLoteAndTipoFields() {
+            loteSelect.value = '';
+            nuevoLoteInput.value = '';
+            fechaCaducidadNuevoLote.value = '';
+            tipoTransaccionRadios.forEach(radio => radio.checked = false);
+            loteSelectGroup.style.display = 'none';
+            nuevoLoteGroup.style.display = 'none';
+            fechaCaducidadNuevoLoteGroup.style.display = 'none';
+            loteSelect.removeAttribute('required');
+            nuevoLoteInput.removeAttribute('required');
+            fechaCaducidadNuevoLote.removeAttribute('required');
+        }
+
+        singleTransactionForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            clearErrorMessages();
+            if (validateForm()) {
+                addTransactionToPendingList();
+            }
+        });
+
+        function validateForm() {
+            let isValid = true;
+
+            const insumoId = insumoSelect.value;
+            if (!insumoId) {
+                errorInsumo.textContent = 'Selecciona un insumo.';
+                isValid = false;
+            }
+
+            const tipoTransaccion = document.querySelector('input[name="tipoTransaccion"]:checked')?.value;
+            if (!tipoTransaccion) {
+                errorTipo.textContent = 'Selecciona un tipo de transacción.';
+                isValid = false;
+            }
+
+            const cantidad = parseInt(cantidadInput.value);
+            if (isNaN(cantidad) || cantidad <= 0) {
+                errorCantidad.textContent = 'Ingresa una cantidad válida (mayor a 0).';
+                isValid = false;
+            }
+
+            const selectedInsumo = allInsumosWithLotesCached.find(insumo => insumo.id === insumoId);
+
+            if (tipoTransaccion === 'entrada') {
+                const nuevoLoteVal = nuevoLoteInput.value.trim();
+                const loteExistenteVal = loteSelect.value;
+
+                if (!nuevoLoteVal && !loteExistenteVal) {
+                    errorLote.textContent = 'Selecciona un lote existente o ingresa uno nuevo.';
+                    errorNuevoLote.textContent = 'Ingresa un lote o selecciona uno existente.';
+                    isValid = false;
+                } else if (nuevoLoteVal && loteExistenteVal) {
+                    errorLote.textContent = 'No puedes seleccionar un lote existente e ingresar uno nuevo.';
+                    errorNuevoLote.textContent = 'No puedes ingresar un lote nuevo y seleccionar uno existente.';
+                    isValid = false;
+                }
+
+                if (nuevoLoteVal && !fechaCaducidadNuevoLote.value) {
+                    errorFechaCaducidadNuevoLote.textContent = 'Ingresa la fecha de caducidad para el nuevo lote.';
+                    isValid = false;
+                }
+            } else if (tipoTransaccion === 'salida' || tipoTransaccion === 'ajuste') {
+                const loteExistenteVal = loteSelect.value;
+                if (!loteExistenteVal) {
+                    errorLote.textContent = 'Selecciona un lote existente.';
+                    isValid = false;
+                } else if (selectedInsumo) {
+                    const selectedLote = selectedInsumo.lotes.find(lote => lote.nombreLote === loteExistenteVal);
+                    if (selectedLote && cantidad > selectedLote.cantidad) {
+                        errorCantidad.textContent = `Cantidad excede el inventario disponible para este lote (${selectedLote.cantidad}).`;
+                        isValid = false;
+                    }
+                }
+            }
+
+            return isValid;
+        }
+
+
+        function addTransactionToPendingList() {
+            const insumoId = insumoSelect.value;
+            const insumoNombre = insumoSelect.options[insumoSelect.selectedIndex].text;
+            const tipoTransaccion = document.querySelector('input[name="tipoTransaccion"]:checked').value;
+            const cantidad = parseInt(cantidadInput.value);
+            const referencia = referenciaInput.value.trim();
+            const ubicacion = ubicacionInput.value.trim();
+            const comentarios = comentariosInput.value.trim();
+
+            let nombreLote = loteSelect.value;
+            let fechaCaducidad = fechaCaducidadNuevoLote.value;
+
+            // Si es entrada y se ingresó un nuevo lote
+            if (tipoTransaccion === 'entrada' && nuevoLoteInput.value.trim()) {
+                nombreLote = nuevoLoteInput.value.trim();
+                fechaCaducidad = fechaCaducidadNuevoLote.value;
+            } else if (tipoTransaccion === 'entrada' && loteSelect.value) {
+                // Si es entrada y se seleccionó un lote existente, obtenemos la fecha de caducidad de ese lote
+                const selectedInsumo = allInsumosWithLotesCached.find(insumo => insumo.id === insumoId);
+                const selectedLote = selectedInsumo.lotes.find(lote => lote.nombreLote === nombreLote);
+                if (selectedLote) {
+                    fechaCaducidad = selectedLote.fechaCaducidad || '';
+                }
+            } else if ((tipoTransaccion === 'salida' || tipoTransaccion === 'ajuste') && loteSelect.value) {
+                // Para salidas/ajustes, el lote siempre viene del select existente
+                const selectedInsumo = allInsumosWithLotesCached.find(insumo => insumo.id === insumoId);
+                const selectedLote = selectedInsumo.lotes.find(lote => lote.nombreLote === nombreLote);
+                if (selectedLote) {
+                    fechaCaducidad = selectedLote.fechaCaducidad || '';
+                }
+            } else {
+                nombreLote = 'N/A'; // O algún valor predeterminado si no se aplica
+                fechaCaducidad = 'N/A';
+            }
+
+
+            const newTransaction = {
+                insumoId,
+                insumoNombre,
+                nombreLote: nombreLote || 'N/A',
+                fechaCaducidad: fechaCaducidad || 'N/A',
+                tipo: tipoTransaccion,
+                cantidad,
+                referencia,
+                ubicacion,
+                comentarios,
+                responsable: currentUserEmail,
+                fechaCreacion: new Date().toISOString()
+            };
+
+            pendingTransactions.push(newTransaction);
+            renderPendingTransactions();
+            singleTransactionForm.reset(); // Limpia el formulario
+            resetLoteAndTipoFields(); // Restablece la visibilidad de los campos de lote/caducidad
+            showNotification("Transacción añadida a la lista pendiente.", "success");
+        }
+
+        function renderPendingTransactions() {
+            if (pendingTransactions.length === 0) {
+                pendingTransactionsTableBody.innerHTML = '<tr><td colspan="6" class="empty-message">No hay artículos pendientes.</td></tr>';
+                confirmAllTransactionsBtn.style.display = 'none';
+                return;
+            }
+
+            confirmAllTransactionsBtn.style.display = 'block';
+            pendingTransactionsTableBody.innerHTML = '';
+            pendingTransactions.forEach((transaction, index) => {
+                const row = pendingTransactionsTableBody.insertRow();
+                row.innerHTML = `
+                    <td data-label="Insumo">${transaction.insumoNombre}</td>
+                    <td data-label="Lote">${transaction.nombreLote}</td>
+                    <td data-label="Caducidad">${formatFecha(transaction.fechaCaducidad)}</td>
+                    <td data-label="Tipo" class="transaction-type ${transaction.tipo}">${transaction.tipo.charAt(0).toUpperCase() + transaction.tipo.slice(1)}</td>
+                    <td data-label="Cantidad">${transaction.cantidad}</td>
+                    <td data-label="Acciones" class="action-buttons">
+                        <button class="btn btn-delete btn-remove-pending" data-index="${index}">
+                            <span class="material-symbols-outlined">delete</span> Eliminar
+                        </button>
+                    </td>
+                `;
+            });
+
+            // Añadir event listeners para los botones de eliminar
+            document.querySelectorAll('.btn-remove-pending').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.closest('button').dataset.index);
+                    removePendingTransaction(index);
+                });
+            });
+        }
+
+        function removePendingTransaction(index) {
+            if (index > -1 && index < pendingTransactions.length) {
+                pendingTransactions.splice(index, 1);
+                renderPendingTransactions();
+                showNotification("Transacción eliminada de la lista pendiente.", "info");
+            }
+        }
+
+        confirmAllTransactionsBtn.addEventListener('click', confirmAllTransactions);
+
+        async function confirmAllTransactions() {
+            if (pendingTransactions.length === 0) {
+                showNotification("No hay transacciones pendientes para confirmar.", "warning");
+                return;
+            }
+
+            if (!currentUserEmail) {
+                showNotification("Error: Usuario no autenticado. Por favor, recarga la página.", "error");
+                return;
+            }
+
+            confirmAllTransactionsBtn.disabled = true;
+            confirmAllTransactionsBtn.textContent = 'Confirmando...';
+
+            const batch = writeBatch(db);
+            let hasError = false;
+
+            for (const transaction of pendingTransactions) {
+                const insumoRef = doc(db, 'insumos', transaction.insumoId);
+                const transactionHistoryRef = collection(db, 'transactions_history');
+
+                try {
+                    await runTransaction(db, async (t) => {
+                        const insumoDoc = await t.get(insumoRef);
+
+                        if (!insumoDoc.exists()) {
+                            throw new Error(`Insumo con ID ${transaction.insumoId} no encontrado.`);
+                        }
+
+                        const currentInsumoData = insumoDoc.data();
+                        let lotes = currentInsumoData.lotes || [];
+                        let loteEncontrado = false;
+                        let cantidadActualizada = 0;
+                        let newLoteEntry = null;
+
+                        // Buscar el lote por nombreLote y, si es entrada, también por fechaCaducidad si existe
+                        const existingLoteIndex = lotes.findIndex(lote =>
+                            lote.nombreLote === transaction.nombreLote &&
+                            (transaction.tipo !== 'entrada' || lote.fechaCaducidad === transaction.fechaCaducidad)
+                        );
+
+                        if (existingLoteIndex > -1) {
+                            // Lote existente
+                            loteEncontrado = true;
+                            const currentLote = lotes[existingLoteIndex];
+                            if (transaction.tipo === 'entrada') {
+                                currentLote.cantidad += transaction.cantidad;
+                                cantidadActualizada = currentLote.cantidad;
+                            } else if (transaction.tipo === 'salida' || transaction.tipo === 'ajuste') {
+                                if (currentLote.cantidad < transaction.cantidad) {
+                                    throw new Error(`Cantidad insuficiente para el insumo ${transaction.insumoNombre} en el lote ${transaction.nombreLote}. Cantidad disponible: ${currentLote.cantidad}, Cantidad solicitada: ${transaction.cantidad}`);
+                                }
+                                currentLote.cantidad -= transaction.cantidad;
+                                cantidadActualizada = currentLote.cantidad;
+                            }
+                            lotes[existingLoteIndex] = currentLote; // Actualizar el lote en el array
+                        } else {
+                            // Lote no existente
+                            if (transaction.tipo === 'entrada' || (transaction.tipo === 'ajuste' && transaction.cantidad > 0)) {
+                                // Crear un nuevo lote solo para entradas o ajustes positivos
+                                newLoteEntry = {
+                                    nombreLote: transaction.nombreLote,
+                                    cantidad: transaction.cantidad,
+                                    fechaCaducidad: transaction.fechaCaducidad !== 'N/A' ? transaction.fechaCaducidad : null
+                                };
+                                lotes.push(newLoteEntry);
+                                cantidadActualizada = newLoteEntry.cantidad;
+                                loteEncontrado = true; // Considerar encontrado ya que se crea
+                            } else {
+                                // Si es salida o ajuste negativo y el lote no existe, es un error
+                                throw new Error(`Lote "${transaction.nombreLote}" no encontrado para el insumo ${transaction.insumoNombre}.`);
+                            }
+                        }
+
+                        // Calcular la nueva cantidad total del insumo
+                        const newTotalQuantity = lotes.reduce((sum, lote) => sum + lote.cantidad, 0);
+
+                        // Actualizar el insumo en Firestore
+                        t.update(insumoRef, {
+                            lotes: lotes,
+                            cantidadTotal: newTotalQuantity
+                        });
+
+                        // Añadir la transacción al historial
+                        batch.set(doc(transactionHistoryRef), {
+                            timestamp: serverTimestamp(),
+                            insumoId: transaction.insumoId,
+                            insumoNombre: transaction.insumoNombre,
+                            nombreLote: transaction.nombreLote,
+                            fechaCaducidad: transaction.fechaCaducidad !== 'N/A' ? transaction.fechaCaducidad : null,
+                            tipo: transaction.tipo,
+                            cantidad: transaction.cantidad,
+                            referencia: transaction.referencia || null,
+                            ubicacion: transaction.ubicacion || null,
+                            comentarios: transaction.comentarios || null,
+                            responsable: currentUserEmail
+                        });
+                    });
+                    console.log("Transacción procesada:", transaction);
+
+                } catch (error) {
+                    console.error("Error al procesar transacción para insumo", transaction.insumoNombre, "Lote:", transaction.nombreLote, ":", error.message);
+                    showNotification(`Error al confirmar una transacción: ${error.message}`, "error");
+                    hasError = true;
+                    // Detener el procesamiento si hay un error crítico
+                    break;
+                }
+            }
+
+            if (!hasError) {
+                try {
+                    await batch.commit();
+                    pendingTransactions = []; // Limpiar la lista pendiente después de un commit exitoso
+                    renderPendingTransactions();
+                    await fetchInsumosAndLotes(); // Recargar insumos para reflejar los nuevos estados de lotes
+                    await fetchTransactionsHistory(true); // Recargar el historial para ver las nuevas transacciones
+                    showNotification("Todas las transacciones confirmadas exitosamente.", "success");
+                } catch (batchError) {
+                    console.error("Error al ejecutar el batch de transacciones:", batchError);
+                    showNotification("Error al guardar las transacciones. Algunas podrían no haberse procesado.", "error");
+                }
+            } else {
+                showNotification("No todas las transacciones pudieron ser confirmadas debido a errores. Revisa los mensajes.", "error");
+            }
+
+            confirmAllTransactionsBtn.disabled = false;
+            confirmAllTransactionsBtn.textContent = 'Confirmar Todas las Transacciones';
+        }
+
+
+        // --- Historial de Transacciones ---
+
+        async function fetchTransactionsHistory(reset = false) {
+            if (reset) {
+                transactionsHistoryTableBody.innerHTML = '<tr><td colspan="7" class="loading-message">Cargando historial...</td></tr>';
+                historyLastVisibleTransaction = null;
+                historyHasMoreItems = true;
+                isHistoryLoadingMore = false;
+                historyPaginationLoadingMessage.style.display = 'none';
+            } else if (!historyHasMoreItems || isHistoryLoadingMore) {
+                return; // No cargar si no hay más o ya está cargando
+            }
+
+            isHistoryLoadingMore = true;
+            historyPaginationLoadingMessage.style.display = 'block';
+
+            try {
+                let qRef = query(
+                    collection(db, 'transactions_history'),
+                    orderBy('timestamp', 'desc'),
+                    limit(HISTORY_ITEMS_PER_PAGE)
+                );
+
+                if (historyLastVisibleTransaction) {
+                    qRef = query(qRef, startAfter(historyLastVisibleTransaction));
+                }
+
+                const querySnapshot = await getDocs(qRef);
+
+                if (reset) {
+                    transactionsHistoryTableBody.innerHTML = ''; // Limpiar solo si es un reset
+                }
+
+                if (querySnapshot.empty) {
+                    historyHasMoreItems = false;
+                    if (reset) {
+                        transactionsHistoryTableBody.innerHTML = '<tr><td colspan="7" class="empty-message">No hay historial de transacciones.</td></tr>';
+                    } else {
+                        showNotification("No hay más transacciones en el historial.", "info");
+                    }
+                } else {
+                    querySnapshot.forEach(docSnap => {
+                        const transaction = docSnap.data();
+                        const row = transactionsHistoryTableBody.insertRow();
+                        row.dataset.id = docSnap.id; // Guardar el ID del documento para eliminación
+                        row.innerHTML = `
+                            <td data-label="Fecha">${formatDateTime(transaction.timestamp)}</td>
+                            <td data-label="Insumo">${transaction.insumoNombre}</td>
+                            <td data-label="Lote">${transaction.nombreLote || 'N/A'}</td>
+                            <td data-label="Tipo" class="transaction-type ${transaction.tipo}">${transaction.tipo.charAt(0).toUpperCase() + transaction.tipo.slice(1)}</td>
+                            <td data-label="Cantidad">${transaction.cantidad}</td>
+                            <td data-label="Responsable">${transaction.responsable || 'Desconocido'}</td>
+                            <td data-label="Acciones" class="action-buttons">
+                                <button class="btn btn-delete btn-delete-history" data-id="${docSnap.id}" ${!isAdmin ? 'disabled' : ''}>
+                                    <span class="material-symbols-outlined">delete</span> Eliminar
+                                </button>
+                            </td>
+                        `;
+                    });
+                    historyLastVisibleTransaction = querySnapshot.docs[querySnapshot.docs.length - 1];
+                    historyHasMoreItems = querySnapshot.docs.length === HISTORY_ITEMS_PER_PAGE;
+
+                    // Add event listeners for delete buttons
+                    document.querySelectorAll('.btn-delete-history').forEach(button => {
+                        button.addEventListener('click', async (e) => {
+                            const transactionId = e.target.closest('button').dataset.id;
+                            if (confirm('¿Estás seguro de que quieres eliminar esta transacción del historial? Esta acción no se puede deshacer y NO afectará el inventario actual.')) {
+                                await deleteTransactionFromHistory(transactionId);
+                            }
+                        });
+                    });
+                }
+            } catch (error) {
+                console.error("Error al cargar historial de transacciones:", error);
+                showNotification("Error al cargar el historial de transacciones.", "error");
+                if (reset) {
+                    transactionsHistoryTableBody.innerHTML = '<tr><td colspan="7" class="error-message">Error al cargar el historial.</td></tr>';
+                }
+            } finally {
+                isHistoryLoadingMore = false;
+                historyPaginationLoadingMessage.style.display = 'none';
+            }
+        }
+
+        async function deleteTransactionFromHistory(transactionId) {
+            if (!isAdmin) {
+                showNotification("No tienes permisos para eliminar transacciones del historial.", "error");
+                return;
+            }
+            try {
+                await deleteDoc(doc(db, 'transactions_history', transactionId));
+                showNotification("Transacción eliminada del historial.", "success");
+                // Remove the row from the table
+                document.querySelector(`tr[data-id="${transactionId}"]`).remove();
+                // If the table becomes empty after deletion, update the message
+                if (transactionsHistoryTableBody.children.length === 0) {
+                    transactionsHistoryTableBody.innerHTML = '<tr><td colspan="7" class="empty-message">No hay historial de transacciones.</td></tr>';
+                }
+            } catch (error) {
+                console.error("Error al eliminar transacción del historial:", error);
+                showNotification(`Error al eliminar transacción del historial: ${error.message}`, "error");
+            }
+        }
+
+
+        // Infinite scroll for transaction history
+        transactionsHistoryTableBody.closest('div').addEventListener('scroll', () => {
+            const container = transactionsHistoryTableBody.closest('div');
+            if (container.scrollHeight - container.scrollTop <= container.clientHeight + 50 && historyHasMoreItems && !isHistoryLoadingMore) {
+                fetchTransactionsHistory();
+            }
+        });
+
+        // Initialize display of form groups
+        loteSelectGroup.style.display = 'none';
+        nuevoLoteGroup.style.display = 'none';
+        fechaCaducidadNuevoLoteGroup.style.display = 'none';
+
+        // Initial render of pending transactions (should be empty on load)
+        renderPendingTransactions();
+    </script>
+</body>
+</html>
