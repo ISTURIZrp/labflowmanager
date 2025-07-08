@@ -1,4 +1,4 @@
-/* app/css/style.css */
+/* app/css/styles.css */
 
 /* Variables CSS para una gestión de colores y fuentes centralizada */
 :root {
@@ -13,7 +13,11 @@
     --accent-primary: #81d4fa; /* Color de acento primario */
     --accent-secondary: #4fc3f7; /* Color de acento secundario */
     --action-error: #ef5350; /* Color para mensajes de error o acciones de peligro */
+    --action-success: #66bb6a; /* Color para acciones de éxito */
+    --action-warning: #ffa726; /* Color para advertencias */
     --font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; /* Familia de fuentes principal */
+    --sidebar-width-collapsed: 60px;
+    --sidebar-width-expanded: 240px;
 }
 
 /* Reseteo básico de estilos para todos los elementos */
@@ -96,7 +100,7 @@ body {
     background: linear-gradient(45deg, var(--accent-secondary), var(--accent-primary));
     -webkit-background-clip: text; /* Recorta el fondo al texto (para navegadores WebKit) */
     -webkit-text-fill-color: transparent; /* Hace el texto transparente para que se vea el fondo */
-    background-clip: text; /* Recorta el fondo al texto */
+    background-clip: text;
     color: transparent; /* Hace el texto transparente */
 }
 /* Ajuste para el título en la barra superior */
@@ -123,7 +127,7 @@ body {
 }
  
 /* Estilos para los campos de entrada de texto y contraseña */
-input[type="text"], input[type="password"] {
+input[type="text"], input[type="password"], input[type="email"], select {
     width: 100%; /* Ocupa todo el ancho del contenedor */
     padding: 14px 18px; /* Espaciado interno */
     border: 1px solid var(--border-color); /* Borde */
@@ -133,9 +137,7 @@ input[type="text"], input[type="password"] {
     font-size: 1rem; /* Tamaño de fuente */
     transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Transición suave para el foco */
 }
-
-/* Estilos para los campos de entrada cuando están en foco */
-input:focus {
+input:focus, select:focus {
     outline: none; /* Elimina el contorno por defecto del navegador */
     border-color: var(--accent-secondary); /* Cambia el color del borde */
     box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.3); /* Añade una sombra de foco */
@@ -143,7 +145,7 @@ input:focus {
 
 /* Estilos para el botón principal (login) */
 .btn-primary {
-    background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary)); /* Degradado de fondo */
+    background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
     color: white; /* Color de texto blanco */
     width: 100%; /* Ocupa todo el ancho */
     margin-top: 15px; /* Margen superior */
@@ -289,8 +291,8 @@ input:focus {
 .tile:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 25px rgba(79, 195, 247, 0.3);
-    background-color: var(--accent-glow-start); /* Cambia el fondo al pasar el ratón */
-    color: white; /* Cambia el color del texto a blanco para mejor contraste */
+    background-color: var(--accent-glow-start);
+    color: white; /* Change text color on hover for better contrast */
 }
 
 .tile i {
@@ -301,10 +303,10 @@ input:focus {
 }
 
 .tile:hover i {
-    color: white; /* Cambia el color del icono al pasar el ratón */
+    color: white; /* Change icon color on hover */
 }
 
-/* Estilo específico para el botón de cerrar sesión */
+/* Specific style for logout button tile */
 #logout-button {
     background: linear-gradient(45deg, var(--action-error), #d32f2f);
     color: white;
@@ -322,32 +324,364 @@ input:focus {
     color: white; /* Asegura que el icono sea blanco para el botón de cerrar sesión */
 }
 
-/* Ajustes responsivos */
+/* --- Estilos para la página de Gestión de Usuarios (users.html) --- */
+
+body {
+    /* Ya definidos globalmente, pero se reafirman para claridad */
+    font-family: var(--font-family);
+    background-color: var(--background-light);
+    color: var(--text-primary);
+    display: flex; /* Para el layout de sidebar y contenido */
+    min-height: 100vh;
+}
+
+.btn {
+    font-family: var(--font-family);
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.btn-primary {
+    background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+}
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(79, 195, 247, 0.4);
+}
+.btn-secondary {
+    background-color: var(--background-dark);
+    color: var(--text-primary);
+}
+.btn-secondary:hover {
+    background-color: #c0c8d1; /* Ligeramente más oscuro al pasar el ratón */
+}
+.btn-edit {
+    background-color: rgba(79, 195, 247, 0.2);
+    color: var(--accent-secondary);
+    padding: 6px 10px;
+}
+.btn-edit:hover {
+    background-color: rgba(79, 195, 247, 0.3);
+}
+.btn-delete {
+    background-color: rgba(239, 83, 80, 0.2);
+    color: var(--action-error);
+    padding: 6px 10px;
+}
+.btn-delete:hover {
+    background-color: rgba(239, 83, 80, 0.3);
+}
+
+/* Estilos para inputs y selects */
+input, select {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background-color: var(--background-dark);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Notificaciones de la aplicación */
+#app-notification {
+    position: fixed;
+    top: 25px;
+    right: 25px;
+    padding: 12px 25px;
+    border-radius: 8px;
+    color: white;
+    z-index: 2000;
+    opacity: 0;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    transform: translateX(100%); /* Inicialmente fuera de la pantalla */
+}
+#app-notification.show {
+    opacity: 1;
+    transform: translateX(0); /* Se desliza a la vista */
+}
+#app-notification.success { background-color: var(--action-success); }
+#app-notification.error { background-color: var(--action-error); }
+#app-notification.info { background-color: var(--accent-secondary); } /* Para mensajes informativos */
+
+
+/* Sidebar con :hover por defecto para desktop */
+nav#sidebar {
+    width: var(--sidebar-width-collapsed);
+    background: var(--background-medium);
+    display: flex;
+    flex-direction: column;
+    transition: width 0.3s ease;
+    position: fixed; /* Fijo en la pantalla */
+    height: 100vh;
+    z-index: 1000;
+    border-right: 1px solid var(--border-color);
+}
+nav#sidebar:hover {
+    width: var(--sidebar-width-expanded);
+}
+nav#sidebar:hover header {
+    font-size: 1.3rem; /* Título visible al expandir */
+}
+nav#sidebar:hover #user-info {
+    opacity: 1;
+    height: auto; /* Muestra la info del usuario */
+}
+nav#sidebar:hover ul li a .material-symbols-outlined {
+    margin-right: 1rem; /* Espacio entre icono y texto */
+}
+nav#sidebar:hover ul li a span.text {
+    display: inline;
+    opacity: 1; /* Muestra el texto del menú */
+}
+
+nav#sidebar header {
+    padding: 1.2rem 1rem;
+    font-weight: 700;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--background-dark);
+    white-space: nowrap;
+    overflow: hidden;
+    font-size: 0; /* Oculto por defecto */
+}
+#user-info {
+    padding: 1rem;
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
+    transition: opacity 0.3s ease, height 0.3s ease;
+}
+#user-logout-btn-sidebar {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 8px;
+    color: var(--text-primary);
+}
+#user-logout-btn-sidebar:hover {
+    background-color: var(--background-dark);
+}
+nav#sidebar ul {
+    list-style: none;
+    padding: 0;
+    flex-grow: 1; /* Ocupa el espacio restante */
+}
+nav#sidebar ul li a {
+    display: flex;
+    align-items: center;
+    color: var(--text-primary);
+    text-decoration: none;
+    padding: 1rem 1.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+nav#sidebar ul li a:hover {
+    background-color: var(--accent-primary);
+    color: white;
+}
+nav#sidebar ul li a .material-symbols-outlined {
+    font-size: 1.6rem;
+    transition: margin-right 0.3s ease, color 0.3s ease;
+    color: var(--accent-secondary); /* Color del icono por defecto */
+}
+nav#sidebar ul li a:hover .material-symbols-outlined {
+    color: white; /* Color del icono al pasar el ratón */
+}
+nav#sidebar ul li a span.text {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+ 
+main#content {
+    flex-grow: 1;
+    margin-left: var(--sidebar-width-collapsed); /* Espacio para la sidebar colapsada */
+    padding: 2rem 3rem;
+    transition: margin-left 0.3s ease;
+}
+nav#sidebar:hover + main#content {
+    margin-left: var(--sidebar-width-expanded); /* Espacio para la sidebar expandida */
+}
+ 
+.main-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+#menu-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: var(--text-primary);
+    display: none; /* Oculto por defecto en desktop, visible en mobile */
+}
+ 
+.content-wrapper {
+    background-color: var(--background-light);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 8px 25px var(--shadow-color);
+}
+.table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+.users-table th, .users-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+.users-table thead {
+    background: var(--background-dark);
+}
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: none; /* Oculto por defecto */
+    justify-content: center;
+    align-items: center;
+    z-index: 1500;
+}
+.modal-backdrop.active {
+    display: flex; /* Visible cuando está activo */
+}
+.modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    animation: modalFadeIn 0.3s ease-out;
+}
+@keyframes modalFadeIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.close-modal-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    font-size: 1.8rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+.close-modal-btn:hover {
+    color: var(--text-primary);
+}
+.form-group {
+    margin-bottom: 15px;
+}
+
+/* Clase para elementos solo de administrador */
+.admin-only {
+    display: none; /* Por defecto oculto, JS lo mostrará si es admin */
+}
+/* Clase para ocultar el campo de rol para no-admins en el modal */
+.role-field-group.hidden-for-non-admin {
+    display: none;
+}
+
+/* Modal de Confirmación para eliminar */
+#confirmModal .modal-content {
+    text-align: center;
+    padding: 25px;
+}
+#confirmModal .modal-content h2 {
+    margin-bottom: 15px;
+    color: var(--action-error);
+}
+#confirmModal .modal-content p {
+    margin-bottom: 25px;
+    color: var(--text-primary);
+}
+#confirmModal .modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+#confirmModal .btn-confirm-delete {
+    background-color: var(--action-error);
+    color: white;
+}
+#confirmModal .btn-confirm-delete:hover {
+    background-color: #c62828;
+}
+
+
+/* Media Queries para responsividad */
 @media (max-width: 768px) {
-    .top-bar {
-        flex-direction: column;
-        gap: 15px;
-        padding: 15px;
-    }
-    .page-container {
-        padding: 20px;
-        margin: 20px auto;
-    }
-    .header-dashboard h1 {
-        font-size: 2rem;
-    }
-    .header-dashboard p {
-        font-size: 1rem;
-    }
-    .tiles-container {
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 15px;
-    }
-    .tile {
-        padding: 20px;
-        font-size: 1rem;
-    }
-    .tile i {
-        font-size: 2.8rem;
+    #menu-toggle-btn { display: inline-flex; }
+    /* Se anula el efecto hover para dar control al botón */
+    nav#sidebar:hover { width: var(--sidebar-width-collapsed); }
+    nav#sidebar:hover header { font-size: 0; }
+    nav#sidebar:hover #user-info { opacity: 0; height: 0; }
+    nav#sidebar:hover ul li a .material-symbols-outlined { margin-right: 0; }
+    nav#sidebar:hover ul li a span.text { display: none; opacity: 0; }
+    nav#sidebar:hover + main#content { margin-left: var(--sidebar-width-collapsed); }
+
+    /* Funcionalidad con click a través de la clase .expanded */
+    nav#sidebar.expanded { width: var(--sidebar-width-expanded); }
+    nav#sidebar.expanded header { font-size: 1.3rem; }
+    nav#sidebar.expanded #user-info { opacity: 1; height: auto; }
+    nav#sidebar.expanded ul li a .material-symbols-outlined { margin-right: 1rem; }
+    nav#sidebar.expanded ul li a span.text { display: inline; opacity: 1; }
+    
+    main#content { margin-left: 0; padding: 1.5rem; }
+    
+    /* Tabla responsiva */
+    .users-table thead { display: none; }
+    .users-table, .users-table tbody, .users-table tr, .users-table td { display: block; width: 100%; }
+    .users-table tr { margin-bottom: 1rem; border: 1px solid var(--border-color); border-radius: 8px; }
+    .users-table td { text-align: right; padding-left: 50%; position: relative; border: none; border-bottom: 1px solid #f0f0f0; }
+    .users-table td:last-child { border-bottom: none; }
+    .users-table td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 15px;
+        width: calc(50% - 30px);
+        text-align: left;
+        font-weight: 700;
+        color: var(--text-primary);
     }
 }
