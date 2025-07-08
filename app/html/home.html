@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
 
-    <!-- Enlace a tu archivo CSS general. La ruta es relativa desde app/pages/ -->
+    <!-- Enlace a tu archivo CSS general. La ruta es relativa desde app/html/ -->
     <link rel="stylesheet" href="../css/styles.css">
     <style>
         /* Estilos específicos para home.html si no están en styles.css */
@@ -231,31 +231,31 @@
         </div>
 
         <div class="tiles-container">
-            <a href="inventory.html" class="tile">
+            <a href="inventory.html" class="tile"> <!-- Ruta corregida a inventory.html dentro de app/html/ -->
                 <i class="mdi mdi-clipboard-list-outline"></i>
                 <span>Insumos</span>
             </a>
-            <a href="productos.html" class="tile"> 
+            <a href="productos.html" class="tile"> <!-- Ruta corregida a productos.html dentro de app/html/ -->
                 <i class="mdi mdi-cube-outline"></i>
                 <span>Productos</span>
             </a>
-            <a href="entradas-salidas.html" class="tile">
+            <a href="entradas-salidas.html" class="tile"> <!-- Ruta corregida -->
                 <i class="mdi mdi-swap-horizontal"></i>
                 <span>Entradas / Salidas</span>
             </a>
-            <a href="envios.html" class="tile">
+            <a href="envios.html" class="tile"> <!-- Ruta corregida -->
                 <i class="mdi mdi-truck-fast-outline"></i>
                 <span>Envíos</span>
             </a>
-            <a href="equipos.html" class="tile">
+            <a href="equipos.html" class="tile"> <!-- Ruta corregida -->
                 <i class="mdi mdi-cogs"></i>
                 <span>Equipos</span>
             </a>
-            <a href="users.html" class="tile">
+            <a href="users.html" class="tile"> <!-- Ruta corregida -->
                 <i class="mdi mdi-account-cog-outline"></i>
                 <span>Usuarios</span>
             </a>
-            <a href="reportes.html" class="tile">
+            <a href="reportes.html" class="tile"> <!-- Ruta corregida -->
                 <i class="mdi mdi-chart-bar-stacked"></i>
                 <span>Reportes</span>
             </a>
@@ -269,7 +269,7 @@
     <!-- Div para mostrar notificaciones temporales de éxito/error -->
     <div id="app-notification"></div>
 
-    <!-- Script para la lógica general de la aplicación -->
+    <!-- Script para la lógica general de la aplicación. La ruta es relativa desde app/html/ -->
     <script type="module" src="../js/script.js"></script>
 </body>
 </html>
