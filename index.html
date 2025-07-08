@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>LabFlow Manager - Iniciar Sesión</title>
+    <title>LabFlow Manager - Inicio de Sesión</title>
     <!-- Fuentes de Google y Material Design Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,8 +11,8 @@
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
 
-    <!-- Enlace a tu archivo CSS personalizado -->
-    <link rel="stylesheet" href="app/css/styles.css">
+    <!-- Enlace a tu archivo CSS personalizado. La ruta es relativa a index.html. -->
+    <link rel="stylesheet" href="app/css/style.css">
 </head>
 <body>
     <div class="login-container">
@@ -32,14 +32,15 @@
             </div>
             <button type="submit" class="btn btn-primary" id="login-btn">
                 <span class="material-symbols-outlined">login</span>
-                <span>Iniciar Sesión</span>
+                <span>Inicio de Sesión</span>
             </button>
         </form>
     </div>
 
+    <!-- Div para mostrar notificaciones temporales de éxito/error -->
     <div id="app-notification"></div>
 
-    <!-- Script para la lógica de inicio de sesión -->
+    <!-- Script para la lógica de inicio de sesión. La ruta es relativa a index.html. -->
     <script type="module" src="app/js/login-script.js"></script>
 </body>
 </html>
