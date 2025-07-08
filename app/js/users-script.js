@@ -21,7 +21,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const API_ENDPOINT = '/.netlify/functions/users'; // URL de tu función de Netlify
+// La API_ENDPOINT se mantiene como referencia, pero las llamadas directas a la API han sido eliminadas temporalmente.
+const API_ENDPOINT = '/.netlify/functions/users'; 
 
 const elements = {
     sidebar: document.getElementById('sidebar'),
@@ -44,16 +45,16 @@ const elements = {
     notificationDiv: document.getElementById('app-notification'),
     adminOnlyElements: document.querySelectorAll('.admin-only'), // Elementos que solo ven los administradores
     
-    // Nuevos elementos para el modal de confirmación
+    // Elementos para el modal de confirmación
     confirmModal: document.getElementById('confirmModal'),
     confirmMessage: document.getElementById('confirm-message'),
     cancelDeleteBtn: document.getElementById('cancel-delete-btn'),
     confirmDeleteBtn: document.getElementById('confirm-delete-btn')
 };
 
-let isAdmin = false; // Estado global para el rol de administrador
+let isAdmin = false; // Estado global para el rol de administrador (por ahora, se asume false)
 let currentUserUid = null; // UID del usuario actualmente logueado
-let allUsers = []; // Para almacenar los usuarios y facilitar la edición
+let allUsers = []; // Para almacenar los usuarios y facilitar la edición (ahora con datos de ejemplo)
 let userToDeleteUid = null; // Para almacenar el UID del usuario a eliminar temporalmente
 
 // Función para mostrar notificaciones
@@ -63,146 +64,25 @@ function showNotification(message, type = 'info') {
     setTimeout(() => { elements.notificationDiv.className = ''; }, 3000);
 }
 
-// Función genérica para llamar a tu API de Netlify Functions
-async function callApi(method, body) {
-    const user = auth.currentUser;
-    if (!user) {
-        // Si no hay usuario logueado, redirige a la página de inicio de sesión
-        // La ruta desde app/html/ a index.html es ../../index.html
-        window.location.href = '../../index.html'; 
-        return; 
-    }
-    const token = await user.getIdToken(); // Obtiene el token de autenticación para la API
-
-    const options = {
-        method,
-        headers: { 
-            'Content-Type': 'application/json', 
-            'Authorization': `Bearer ${token}` 
-        },
-    };
-    if (body) options.body = JSON.stringify(body);
-    
-    const response = await fetch(API_ENDPOINT, options);
-    const responseData = await response.json(); // Aquí es donde falla si no recibe JSON
-    if (!response.ok) {
-        // Si la respuesta no es OK, lanza un error con el mensaje de la API
-        throw new Error(responseData.message || `Error en la solicitud: ${response.status}`);
-    }
-    return responseData;
-}
-
-// Función para renderizar la tabla de usuarios
-async function fetchAndRenderUsers() {
-    elements.usersTableBody.innerHTML = `<tr><td colspan="5">Cargando usuarios...</td></tr>`;
-    try {
-        const users = await callApi('GET');
-        allUsers = users; // Guarda la lista de usuarios
-        elements.usersTableBody.innerHTML = '';
-
-        if (users.length === 0) {
-            elements.usersTableBody.innerHTML = `<tr><td colspan="5">No hay usuarios registrados.</td></tr>`;
-            return;
-        }
-
-        users.forEach(user => {
-            const row = document.createElement('tr');
-            // `lastSignInTime` es un string, pero a veces viene como número, convertimos a Date si es numérico
-            const lastSignIn = user.metadata?.lastSignInTime 
-                ? new Date(isNaN(user.metadata.lastSignInTime) ? user.metadata.lastSignInTime : parseInt(user.metadata.lastSignInTime)).toLocaleDateString() 
-                : 'Nunca';
-            
-            // Solo muestra los botones de acción si el usuario actual es administrador
-            // O si el usuario está editando su propio perfil (solo botón de editar)
-            let actionButtons = '';
-            if (isAdmin || user.uid === currentUserUid) {
-                actionButtons += `<button class="btn btn-edit" data-uid="${user.uid}">Editar</button>`;
-                if (isAdmin && user.uid !== currentUserUid) { // Solo admin puede eliminar a otros
-                    actionButtons += `<button class="btn btn-delete" data-uid="${user.uid}" data-email="${user.email}">Eliminar</button>`;
-                }
-            }
-
-            row.innerHTML = `
-                <td data-label="Nombre">${user.displayName || user.full_name || 'N/A'}</td> 
-                <td data-label="Email">${user.email}</td>
-                <td data-label="Rol">${user.role || 'Usuario'}</td>
-                <td data-label="Último Acceso">${lastSignIn}</td>
-                <td data-label="Acciones" class="action-buttons">${actionButtons}</td>
-            `;
-            elements.usersTableBody.appendChild(row);
-        });
-    } catch (error) {
-        showNotification(`Error al cargar usuarios: ${error.message}`, 'error');
-        elements.usersTableBody.innerHTML = `<tr><td colspan="5">Error al cargar la lista.</td></tr>`;
-        console.error("Error fetching users:", error);
-    }
-}
-
-// Maneja el envío del formulario de usuario (crear/actualizar)
-async function handleFormSubmit(e) {
-    e.preventDefault();
-    elements.saveUserBtn.disabled = true;
-
-    // Validación básica
-    if (!elements.usernameField.value || !elements.emailField.value || (!elements.userIdField.value && !elements.passwordField.value)) {
-        showNotification('Por favor, complete todos los campos requeridos.', 'error');
-        elements.saveUserBtn.disabled = false;
-        return;
-    }
-
-    const body = {
-        action: elements.userIdField.value ? 'update' : 'create', // Determina si es una actualización o creación
-        uid: elements.userIdField.value,
-        username: elements.usernameField.value, // Envía 'username'
-        email: elements.emailField.value,
-        password: elements.passwordField.value,
-        role: elements.roleField.value,
-    };
-    
-    try {
-        await callApi('POST', body);
-        showNotification(`Usuario ${body.action === 'update' ? 'actualizado' : 'creado'} correctamente.`, 'success');
-        await fetchAndRenderUsers(); // Vuelve a cargar la tabla
-        closeUserModal();
-    } catch (error) {
-        showNotification(`Error: ${error.message}`, 'error');
-        console.error("Error saving user:", error);
-    } finally {
-        elements.saveUserBtn.disabled = false;
-    }
-}
-
+// --- Funciones de Modal ---
 // Abre el modal de usuario (para añadir o editar)
 function openUserModal(user = null) {
     elements.userForm.reset(); // Limpia el formulario
-    elements.passwordField.placeholder = "Dejar vacío para no cambiar";
+    elements.passwordField.placeholder = "Contraseña (requerida para nuevos usuarios)";
     elements.passwordField.required = !user; // La contraseña es requerida solo para nuevos usuarios
 
-    // Controla la visibilidad y editabilidad del campo de rol
-    if (isAdmin) {
-        elements.roleFieldGroup.classList.remove('hidden-for-non-admin');
-        elements.roleField.disabled = false;
-    } else {
-        // Si no es admin, oculta el campo de rol
-        elements.roleFieldGroup.classList.add('hidden-for-non-admin');
-        elements.roleField.disabled = true; // Deshabilita para asegurar que no se envíe un valor modificado
-    }
-
+    // Por ahora, el campo de rol siempre es visible y editable para demostración de la UI.
+    // La lógica de ocultar/mostrar basada en isAdmin se ha simplificado.
+    elements.roleFieldGroup.classList.remove('hidden-for-non-admin');
+    elements.roleField.disabled = false;
 
     if (user) {
         elements.userModalTitle.textContent = 'Editar Usuario';
         elements.userIdField.value = user.uid;
-        elements.usernameField.value = user.displayName || user.full_name || ''; // Usa full_name de Firestore si existe
+        elements.usernameField.value = user.displayName || '';
         elements.emailField.value = user.email;
         elements.emailField.disabled = true; // No permitir cambiar el email al editar
         elements.roleField.value = user.role || 'usuario';
-
-        // Si el usuario actual no es admin y está editando su propio perfil, el campo de rol también debe estar deshabilitado.
-        // Aunque ya lo ocultamos, esta es una capa extra de seguridad para el input.
-        if (!isAdmin) {
-            elements.roleField.disabled = true;
-        }
-
     } else {
         elements.userModalTitle.textContent = 'Añadir Nuevo Usuario';
         elements.userIdField.value = '';
@@ -229,31 +109,86 @@ function closeConfirmModal() {
     userToDeleteUid = null; // Limpia el UID almacenado
 }
 
-// --- Verificación de autenticación y roles ---
+// --- Lógica de Datos (Simplificada con datos de ejemplo) ---
+// Función para renderizar la tabla de usuarios con datos de ejemplo
+async function fetchAndRenderUsers() {
+    elements.usersTableBody.innerHTML = `<tr><td colspan="5">Cargando usuarios de ejemplo...</td></tr>`;
+
+    // Datos de ejemplo para simular la carga de usuarios
+    const dummyUsers = [
+        { uid: "user123", displayName: "Juan Pérez", email: "juan.perez@example.com", role: "usuario", metadata: { lastSignInTime: Date.now() - 86400000 } },
+        { uid: "admin456", displayName: "Admin Principal", email: "admin@example.com", role: "administrador", metadata: { lastSignInTime: Date.now() - 3600000 } },
+        { uid: "tech789", displayName: "María Técnica", email: "maria.t@example.com", role: "tecnico", metadata: { lastSignInTime: Date.now() - 7200000 } }
+    ];
+
+    // Simula una pequeña demora para la "carga"
+    await new Promise(resolve => setTimeout(resolve, 500)); 
+
+    allUsers = dummyUsers; // Almacena los usuarios de ejemplo
+
+    elements.usersTableBody.innerHTML = ''; // Limpia la tabla
+
+    if (allUsers.length === 0) {
+        elements.usersTableBody.innerHTML = `<tr><td colspan="5">No hay usuarios de ejemplo registrados.</td></tr>`;
+        return;
+    }
+
+    allUsers.forEach(user => {
+        const row = document.createElement('tr');
+        const lastSignIn = user.metadata?.lastSignInTime 
+            ? new Date(user.metadata.lastSignInTime).toLocaleDateString() 
+            : 'Nunca';
+        
+        // Los botones de acción se muestran para todos los usuarios de ejemplo.
+        // La lógica de permisos real se implementará con tu API de backend.
+        let actionButtons = `
+            <button class="btn btn-edit" data-uid="${user.uid}">Editar</button>
+            <button class="btn btn-delete" data-uid="${user.uid}" data-email="${user.email}">Eliminar</button>
+        `;
+
+        row.innerHTML = `
+            <td data-label="Nombre">${user.displayName || 'N/A'}</td> 
+            <td data-label="Email">${user.email}</td>
+            <td data-label="Rol">${user.role || 'Usuario'}</td>
+            <td data-label="Último Acceso">${lastSignIn}</td>
+            <td data-label="Acciones" class="action-buttons">${actionButtons}</td>
+        `;
+        elements.usersTableBody.appendChild(row);
+    });
+    showNotification('Usuarios de ejemplo cargados.', 'info');
+}
+
+// Maneja el envío del formulario de usuario (crear/actualizar) - Lógica simplificada
+async function handleFormSubmit(e) {
+    e.preventDefault();
+    elements.saveUserBtn.disabled = true;
+
+    const isUpdate = elements.userIdField.value !== '';
+    const actionMessage = isUpdate ? 'actualizado' : 'creado';
+
+    showNotification(`Usuario ${actionMessage} (simulado) correctamente.`, 'success');
+    // Aquí es donde en el futuro harías la llamada a tu API de Netlify Functions
+    // await callApi('POST', { action: isUpdate ? 'update' : 'create', ...datosDelFormulario });
+    
+    // Por ahora, solo recargar los datos de ejemplo para simular un cambio
+    await fetchAndRenderUsers(); 
+    closeUserModal();
+    elements.saveUserBtn.disabled = false;
+}
+
+// --- Verificación de autenticación y roles (Básica) ---
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         currentUserUid = user.uid; // Guarda el UID del usuario logueado
         elements.userEmailDisplaySidebar.textContent = user.email;
-        try {
-            const idTokenResult = await user.getIdTokenResult();
-            // Establece la variable global isAdmin
-            isAdmin = idTokenResult.claims.role === 'administrador';
-
-            // Oculta/muestra elementos basados en el rol de administrador
-            elements.adminOnlyElements.forEach(el => {
-                el.style.display = isAdmin ? '' : 'none';
-            });
-            
-            // Carga y renderiza los usuarios después de determinar el rol
-            await fetchAndRenderUsers(); 
-        } catch (error) {
-            showNotification("Error al verificar permisos. Redirigiendo...", 'error');
-            console.error("Error al obtener claims de ID:", error);
-            await signOut(auth); // Cerrar sesión en caso de error de permisos
-        }
+        
+        // Por ahora, no se verifica el rol de administrador dinámicamente desde claims.
+        // La variable `isAdmin` se mantiene en `false` por defecto en este script simplificado.
+        // Los elementos `.admin-only` en el HTML no se ocultarán/mostrarán automáticamente por JS aquí.
+        
+        await fetchAndRenderUsers(); // Carga los usuarios de ejemplo
     } else {
         // Si no hay usuario logueado, redirige a la página de inicio de sesión
-        // La ruta desde app/html/ a index.html es ../../index.html
         window.location.href = '../../index.html';
     }
 });
@@ -275,27 +210,16 @@ elements.userForm.addEventListener('submit', handleFormSubmit);
 
 elements.usersTableBody.addEventListener('click', async (e) => {
     const targetButton = e.target.closest('.btn-edit, .btn-delete');
-    // Solo procesa si se hizo clic en un botón de acción
     if (!targetButton) return;
 
     const uid = targetButton.dataset.uid;
+    const email = targetButton.dataset.email;
 
     if (targetButton.classList.contains('btn-edit')) {
-        // Solo un admin o el propio usuario pueden editar
-        if (!isAdmin && uid !== currentUserUid) {
-            showNotification('No tienes permiso para editar este usuario.', 'error');
-            return;
-        }
         const userToEdit = allUsers.find(u => u.uid === uid);
         if (userToEdit) openUserModal(userToEdit);
     } else if (targetButton.classList.contains('btn-delete')) {
-        // Solo un admin puede eliminar a otros usuarios (no a sí mismo)
-        if (!isAdmin || uid === currentUserUid) {
-            showNotification('No tienes permiso para eliminar este usuario o no puedes eliminar tu propia cuenta.', 'error');
-            return;
-        }
-        // Abre el modal de confirmación en lugar de usar confirm()
-        openConfirmModal(uid, targetButton.dataset.email);
+        openConfirmModal(uid, email);
     }
 });
 
@@ -303,15 +227,12 @@ elements.usersTableBody.addEventListener('click', async (e) => {
 elements.cancelDeleteBtn.addEventListener('click', closeConfirmModal);
 elements.confirmDeleteBtn.addEventListener('click', async () => {
     if (userToDeleteUid) {
-        try {
-            await callApi('POST', { action: 'delete', uid: userToDeleteUid });
-            showNotification('Usuario eliminado correctamente.', 'success');
-            await fetchAndRenderUsers(); // Vuelve a cargar la tabla
-            closeConfirmModal();
-        } catch (error) {
-            showNotification(`Error al eliminar: ${error.message}`, 'error');
-            console.error("Error deleting user:", error);
-            closeConfirmModal(); // Cierra el modal incluso si hay error
-        }
+        showNotification(`Usuario ${userToDeleteUid} eliminado (simulado).`, 'success');
+        // Aquí es donde en el futuro harías la llamada a tu API de Netlify Functions para eliminar
+        // await callApi('POST', { action: 'delete', uid: userToDeleteUid });
+        
+        // Por ahora, solo recargar los datos de ejemplo (el usuario no se eliminará realmente)
+        await fetchAndRenderUsers(); 
+        closeConfirmModal();
     }
 });
