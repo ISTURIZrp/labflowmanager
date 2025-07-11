@@ -71,15 +71,17 @@ body {
 }
 
 /* Clases para controlar la visibilidad del contenido principal durante la carga */
+/* Por defecto, el body está oculto. JS añade 'loaded' para mostrarlo. */
 body.loading {
     opacity: 0;
     pointer-events: none; /* Evita interacciones mientras carga */
-    transition: opacity 0.5s ease-out;
+    transition: opacity 0.5s ease-out; /* Transición suave para la opacidad */
 }
 body.loaded {
     opacity: 1;
     pointer-events: auto;
-    animation: fadeIn 1s ease-in-out;
+    /* La animación fadeIn se aplicará solo una vez al cargar */
+    animation: fadeIn 1s ease-in-out forwards; /* 'forwards' mantiene el estado final */
 }
 
 
@@ -98,8 +100,12 @@ body.loaded {
     border-radius: 18px;
     box-shadow: 0 10px 30px var(--shadow-color);
     text-align: center;
-    transform: translateY(0); /* Para animación */
+    /* La animación fadeInScale se ejecutará cuando el .login-container sea visible */
+    /* Aseguramos que la opacidad inicial sea 0 si el body.loading lo ocultaba */
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
     animation: fadeInScale 0.7s ease-out forwards;
+    animation-delay: 0.5s; /* Retrasa la animación del formulario para que el body aparezca primero */
 }
 
 @keyframes fadeInScale {
@@ -271,6 +277,7 @@ select:focus {
     margin-top: 1rem;
     text-align: center;
     height: 1.2em; /* Mantiene el espacio para el mensaje de error */
+    display: none; /* Por defecto oculto, JS lo muestra */
 }
 
 /* --- App Notifications --- */
