@@ -10,20 +10,24 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="app/css/styles.css">
 </head>
-<body class="loading"> <div class="login-container">
+<body class="loading">
+    <div class="login-container">
         <div class="app-brand">
             <i class="mdi mdi-beaker-outline logo-icon"></i>
             <h1>LabFlow Manager</h1>
         </div>
         <form id="loginForm">
             <div class="form-group">
-                <label for="email-username-field">Correo Electrónico o Usuario</label> <input type="text" id="email-username-field" name="email-username" required autocomplete="username" placeholder="tu.email@ejemplo.com o tu_usuario" />
-                </div>
+                <label for="email-username-field">Correo Electrónico o Usuario</label>
+                <input type="text" id="email-username-field" name="email-username" required autocomplete="username" placeholder="tu.email@ejemplo.com o tu_usuario" />
+            </div>
             <div class="form-group">
                 <label for="password-field">Contraseña</label>
                 <input type="password" id="password-field" name="password" required autocomplete="current-password" placeholder="••••••••" />
-                <div class="error-message" id="error-message"></div> </div>
-            <button type="submit" class="btn-primary" id="login-btn"> <i class="mdi mdi-login"></i> Iniciar Sesión
+                <div class="error-message" id="error-message"></div>
+            </div>
+            <button type="submit" class="btn-primary" id="login-btn">
+                <i class="mdi mdi-login"></i> Iniciar Sesión
             </button>
         </form>
     </div>
