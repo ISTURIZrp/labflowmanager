@@ -4,272 +4,128 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>LabFlow Manager - Panel de Control</title>
-    <!-- Enlaces a fuentes e iconos -->
     <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
 
-    <!-- Enlace a tu archivo CSS general. La ruta es relativa desde app/html/ -->
     <link rel="stylesheet" href="../css/styles.css">
-    <style>
-        /* Estilos específicos para home.html si no están en styles.css */
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--background-body);
-            color: var(--text-primary);
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        .top-bar {
-            background-color: var(--background-container);
-            border-bottom: 1px solid var(--border-color);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px var(--shadow-color);
-        }
-
-        .top-bar .app-brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 0; /* Override login page margin */
-        }
-
-        .top-bar .app-brand .logo-icon {
-            font-size: 2.5rem; /* Smaller logo for top bar */
-        }
-
-        .top-bar .app-brand h1 {
-            font-size: 1.8rem; /* Smaller title for top bar */
-            /* Gradient already defined in :root, just ensure it applies */
-        }
-
-        .user-info-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background-color: var(--background-body);
-            border-radius: 25px;
-            padding: 8px 15px;
-            border: 1px solid var(--border-color);
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .user-info-box:hover {
-            box-shadow: 0 4px 15px rgba(79, 195, 247, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .user-info-box .user-details {
-            text-align: right;
-            line-height: 1.2;
-        }
-
-        .user-info-box .user-details div {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .user-info-box .user-details small {
-            font-size: 0.8rem;
-            color: var(--text-secondary);
-        }
-
-        .user-info-box .mdi-account-circle-outline {
-            font-size: 2.2rem;
-            color: var(--accent-secondary);
-        }
-
-        .page-container {
-            flex-grow: 1;
-            padding: 30px;
-            max-width: 1200px;
-            margin: 30px auto;
-            background-color: var(--background-container);
-            border-radius: 20px;
-            box-shadow: 0 5px 20px var(--shadow-color);
-        }
-
-        .header-dashboard {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .header-dashboard h1 {
-            font-size: 2.8rem;
-            font-weight: 800;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, var(--accent-secondary), var(--accent-primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .header-dashboard p {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-        }
-
-        .tiles-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 25px;
-            justify-content: center;
-        }
-
-        .tile {
-            background-color: var(--background-body);
-            border: 1px solid var(--border-color);
-            border-radius: 15px;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            color: var(--text-primary);
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            text-align: center;
-        }
-
-        .tile:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(79, 195, 247, 0.3);
-            background-color: var(--accent-glow-start);
-            color: white; /* Change text color on hover for better contrast */
-        }
-
-        .tile i {
-            font-size: 3.5rem;
-            color: var(--accent-secondary);
-            margin-bottom: 15px;
-            transition: color 0.3s ease;
-        }
-
-        .tile:hover i {
-            color: white; /* Change icon color on hover */
-        }
-
-        /* Specific style for logout button tile */
-        #logout-button {
-            background: linear-gradient(45deg, var(--action-error), #d32f2f);
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        #logout-button:hover {
-            background: linear-gradient(45deg, #d32f2f, #c62828);
-            box-shadow: 0 10px 25px rgba(239, 83, 80, 0.3);
-            transform: translateY(-5px);
-        }
-
-        #logout-button i {
-            color: white; /* Ensure icon is white for logout button */
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .top-bar {
-                flex-direction: column;
-                gap: 15px;
-            }
-            .page-container {
-                padding: 20px;
-                margin: 20px auto;
-            }
-            .header-dashboard h1 {
-                font-size: 2rem;
-            }
-            .header-dashboard p {
-                font-size: 1rem;
-            }
-            .tiles-container {
-                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-                gap: 15px;
-            }
-            .tile {
-                padding: 20px;
-                font-size: 1rem;
-            }
-            .tile i {
-                font-size: 2.8rem;
-            }
-        }
-    </style>
 </head>
-<body>
-
-    <header class="top-bar">
-        <div class="app-brand">
+<body class="loading"> <nav id="sidebar">
+        <header>
             <i class="mdi mdi-beaker-outline logo-icon"></i>
-            <h1>LabFlow Manager</h1>
-        </div>
-        <div class="user-info-box" id="user-info-box">
-            <div class="user-details">
-                <div id="user-name-display">Cargando...</div>
-                <small id="user-role-display">...</small>
+            <span class="text">LabFlow Manager</span>
+        </header>
+        <ul>
+            <li>
+                <a href="home.html" class="active">
+                    <i class="material-icons-outlined">dashboard</i>
+                    <span class="text">Panel de Control</span>
+                </a>
+            </li>
+            <li>
+                <a href="inventory.html">
+                    <i class="material-icons-outlined">inventory_2</i>
+                    <span class="text">Insumos</span>
+                </a>
+            </li>
+            <li>
+                <a href="productos.html">
+                    <i class="material-icons-outlined">shopping_bag</i>
+                    <span class="text">Productos</span>
+                </a>
+            </li>
+            <li>
+                <a href="entradas-salidas.html">
+                    <i class="material-icons-outlined">swap_horiz</i>
+                    <span class="text">Movimientos</span>
+                </a>
+            </li>
+            <li>
+                <a href="envios.html">
+                    <i class="material-icons-outlined">local_shipping</i>
+                    <span class="text">Envíos</span>
+                </a>
+            </li>
+            <li>
+                <a href="equipos.html">
+                    <i class="material-icons-outlined">precision_manufacturing</i>
+                    <span class="text">Equipos</span>
+                </a>
+            </li>
+            <li>
+                <a href="users.html">
+                    <i class="material-icons-outlined">group</i>
+                    <span class="text">Usuarios</span>
+                </a>
+            </li>
+            <li>
+                <a href="reportes.html">
+                    <i class="material-icons-outlined">bar_chart</i>
+                    <span class="text">Reportes</span>
+                </a>
+            </li>
+        </ul>
+        <div class="sidebar-bottom">
+            <div id="user-info">
+                <i class="mdi mdi-account-circle-outline"></i>
+                <div class="user-details-sidebar">
+                    <div id="user-name-display">Cargando...</div>
+                    <small id="user-role-display">...</small>
+                </div>
             </div>
-            <i class="mdi mdi-account-circle-outline"></i>
-        </div>
-    </header>
-
-    <main class="page-container" id="page-container">
-        <div class="header-dashboard">
-            <h1>Panel de Control</h1>
-            <p>Selecciona un módulo para comenzar</p>
-        </div>
-
-        <div class="tiles-container">
-            <a href="inventory.html" class="tile"> <!-- Ruta corregida a inventory.html dentro de app/html/ -->
-                <i class="mdi mdi-clipboard-list-outline"></i>
-                <span>Insumos</span>
-            </a>
-            <a href="productos.html" class="tile"> <!-- Ruta corregida a productos.html dentro de app/html/ -->
-                <i class="mdi mdi-cube-outline"></i>
-                <span>Productos</span>
-            </a>
-            <a href="entradas-salidas.html" class="tile"> <!-- Ruta corregida -->
-                <i class="mdi mdi-swap-horizontal"></i>
-                <span>Entradas / Salidas</span>
-            </a>
-            <a href="envios.html" class="tile"> <!-- Ruta corregida -->
-                <i class="mdi mdi-truck-fast-outline"></i>
-                <span>Envíos</span>
-            </a>
-            <a href="equipos.html" class="tile"> <!-- Ruta corregida -->
-                <i class="mdi mdi-cogs"></i>
-                <span>Equipos</span>
-            </a>
-            <a href="users.html" class="tile"> <!-- Ruta corregida -->
-                <i class="mdi mdi-account-cog-outline"></i>
-                <span>Usuarios</span>
-            </a>
-            <a href="reportes.html" class="tile"> <!-- Ruta corregida -->
-                <i class="mdi mdi-chart-bar-stacked"></i>
-                <span>Reportes</span>
-            </a>
-            <button class="tile" id="logout-button">
-                <i class="mdi mdi-logout-variant"></i>
-                <span>Cerrar sesión</span>
+            <button class="btn-logout" id="logout-button-sidebar">
+                <i class="material-icons-outlined">logout</i>
+                <span class="text">Cerrar Sesión</span>
             </button>
         </div>
+    </nav>
+
+    <main id="content">
+        <header class="main-header">
+            <button id="menu-toggle-btn" class="mdi mdi-menu"></button>
+            <h1 class="page-title">Panel de Control</h1>
+        </header>
+
+        <section class="content-wrapper">
+            <p>Selecciona un módulo para comenzar</p>
+
+            <div class="tiles-container">
+                <a href="inventory.html" class="tile">
+                    <i class="mdi mdi-clipboard-list-outline"></i>
+                    <span>Insumos</span>
+                </a>
+                <a href="productos.html" class="tile">
+                    <i class="mdi mdi-cube-outline"></i>
+                    <span>Productos</span>
+                </a>
+                <a href="entradas-salidas.html" class="tile">
+                    <i class="mdi mdi-swap-horizontal"></i>
+                    <span>Movimientos</span>
+                </a>
+                <a href="envios.html" class="tile">
+                    <i class="mdi mdi-truck-fast-outline"></i>
+                    <span>Envíos</span>
+                </a>
+                <a href="equipos.html" class="tile">
+                    <i class="mdi mdi-cogs"></i>
+                    <span>Equipos</span>
+                </a>
+                <a href="users.html" class="tile">
+                    <i class="mdi mdi-account-cog-outline"></i>
+                    <span>Usuarios</span>
+                </a>
+                <a href="reportes.html" class="tile">
+                    <i class="mdi mdi-chart-bar-stacked"></i>
+                    <span>Reportes</span>
+                </a>
+            </div>
+        </section>
     </main>
 
-    <!-- Div para mostrar notificaciones temporales de éxito/error -->
     <div id="app-notification"></div>
 
-    <!-- Script para la lógica general de la aplicación. La ruta es relativa desde app/html/ -->
     <script type="module" src="../js/script.js"></script>
 </body>
 </html>
