@@ -1,341 +1,187 @@
 /* app/css/styles.css */
 
-/* Variables CSS para una gestión de colores y fuentes centralizada */
+/* --- Variables CSS para un tema claro/oscuro --- */
 :root {
-    --background-body: #f0f4f8; /* Color de fondo principal del cuerpo */
-    --background-container: #ffffff; /* Color de fondo para contenedores como el formulario de login y la barra superior */
-    --text-primary: #2c3e50; /* Color de texto principal */
-    --text-secondary: #607d8b; /* Color de texto secundario */
-    --border-color: #d1d9e6; /* Color para bordes */
-    --shadow-color: rgba(44, 62, 80, 0.15); /* Color para sombras */
-    --accent-glow-start: rgba(129, 212, 250, 0.5); /* Inicio del color de acento para efectos de brillo */
-    --accent-glow-end: rgba(79, 195, 247, 0.5); /* Fin del color de acento para efectos de brillo */
-    --accent-primary: #81d4fa; /* Color de acento primario */
-    --accent-secondary: #4fc3f7; /* Color de acento secundario */
-    --action-error: #ef5350; /* Color para mensajes de error o acciones de peligro */
-    --action-success: #66bb6a; /* Color para acciones de éxito */
-    --action-warning: #ffa726; /* Color para advertencias */
-    --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; /* Familia de fuentes principal */
-    --sidebar-width-collapsed: 60px;
-    --sidebar-width-expanded: 240px;
+    --primary-color: #4CAF50; /* Verde vibrante (original, aunque no muy usado ahora) */
+    --secondary-color: #2196F3; /* Azul para énfasis (original, no muy usado) */
+
+    /* Colores del tema (modo claro por defecto) */
+    --background-body: #f0f2f5; /* Fondo general claro */
+    --background-container: #ffffff; /* Fondo de contenedores/cards */
+    --border-color: #e0e0e0; /* Bordes suaves */
+    --text-primary: #333333; /* Texto principal oscuro */
+    --text-secondary: #757575; /* Texto secundario gris */
+    --shadow-color: rgba(0, 0, 0, 0.08); /* Sombra ligera */
+
+    /* Colores de acento - Ajustados para un aspecto más moderno */
+    --accent-primary: #6366F1; /* Morado vibrante */
+    --accent-secondary: #0EA5E9; /* Azul cian llamativo */
+    --accent-glow-start: rgba(99, 102, 241, 0.4); /* Para efectos de brillo/hover */
+    --accent-glow-end: rgba(14, 165, 233, 0.4); /* Para efectos de brillo/hover */
+
+    /* Colores de estado */
+    --action-success: #28a745;
+    --action-error: #dc3545;
+    --action-warning: #ffc107;
+    --action-info: #17a2b8;
+
+    /* Tipografía */
+    --font-family: 'Plus Jakarta Sans', sans-serif;
+
+    /* Sidebar Variables - Ligeramente ajustadas para mejor contraste */
+    --sidebar-width-expanded: 280px; /* Ancho cuando está expandido */
+    --sidebar-width-collapsed: 90px; /* Ancho cuando está colapsado */
+    --sidebar-bg: #2b3035; /* Fondo oscuro del sidebar */
+    --sidebar-text: #e0e0e0; /* Color de texto del sidebar */
+    --sidebar-active-bg: #4c5258; /* Fondo del elemento activo en sidebar */
+    --sidebar-hover-bg: #3c4146; /* Fondo del elemento hover en sidebar */
+    --sidebar-icon-color: #a7d9ff; /* Color de los iconos en sidebar */
+    --sidebar-logo-color: var(--accent-primary); /* Color del logo en sidebar */
+    --sidebar-bottom-bg: #22262a; /* Fondo de la sección inferior del sidebar */
+    --sidebar-border-color: rgba(255, 255, 255, 0.1); /* Borde entre secciones */
+
+    /* Fondos adicionales para botones, tablas, etc. */
+    --background-light: #f7f9fc; /* Un blanco roto o gris muy claro */
+    --background-dark: #e9eff5; /* Un gris claro para contrastar */
 }
 
-/* Reseteo básico de estilos para todos los elementos */
-* {
-    box-sizing: border-box; /* Incluye padding y borde en el ancho/alto total */
-    margin: 0; /* Elimina márgenes por defecto */
-    padding: 0; /* Elimina paddings por defecto */
+/* --- Global Resets & Base Styles --- */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-/* Estilos para el cuerpo de la página (aplicables a login y home) */
 body {
-    font-family: var(--font-family); /* Aplica la fuente definida */
-    background-color: var(--background-body); /* Aplica el color de fondo */
+    font-family: var(--font-family);
+    background-color: var(--background-body);
     background-image:
         radial-gradient(ellipse at 10% 90%, var(--accent-glow-start), transparent 50%),
         radial-gradient(ellipse at 90% 10%, var(--accent-glow-end), transparent 50%);
-    color: var(--text-primary); /* Aplica el color de texto principal */
-    min-height: 100vh; /* Ocupa al menos el 100% del alto de la ventana */
-    animation: fadeIn 1s ease-in-out; /* Animación de aparición */
-    /* Flexbox para centrar contenido en el login, o para layout de app en home */
-    display: flex;
-    flex-direction: column; /* Por defecto, apila elementos verticalmente */
-}
-
-/* Keyframes para la animación de aparición del cuerpo */
-@keyframes fadeIn {
-    from { opacity: 0; } /* Empieza completamente transparente */
-    to { opacity: 1; } /* Termina completamente visible */
-}
-
-/* Estilos específicos para el contenedor de login (solo en index.html) */
-.login-container {
-    background-color: var(--background-container); /* Fondo blanco */
-    border: 1px solid var(--border-color); /* Borde suave */
-    border-radius: 20px; /* Bordes redondeados */
-    padding: 40px; /* Espaciado interno */
-    box-shadow: 0 10px 40px var(--shadow-color); /* Sombra pronunciada */
-    max-width: 450px; /* Ancho máximo */
-    width: 100%; /* Ocupa todo el ancho disponible hasta el max-width */
-    text-align: center; /* Centra el texto dentro del contenedor */
-    animation: slideUp 0.6s cubic-bezier(0.165, 0.84, 0.44, 1); /* Animación de deslizamiento hacia arriba */
-    /* Centrado para la página de login */
-    margin: auto; /* Centra el contenedor en el body flex */
-}
-
-/* Keyframes para la animación de deslizamiento hacia arriba del contenedor */
-@keyframes slideUp {
-    from { transform: translateY(40px); opacity: 0; } /* Empieza más abajo y transparente */
-    to { transform: translateY(0); opacity: 1; } /* Termina en su posición y visible */
-}
-
-/* Estilos para la sección de la marca de la aplicación (logo y título) */
-.app-brand {
-    display: flex; /* Usa flexbox para alinear elementos */
-    align-items: center; /* Centra verticalmente los elementos hijos */
-    gap: 10px; /* Espacio entre el logo y el título */
-}
-/* Ajuste para el app-brand en la página de login */
-.login-container .app-brand {
-    flex-direction: column; /* Apila elementos verticalmente en el login */
-    margin-bottom: 30px; /* Margen inferior en el login */
-}
-
-/* Estilos para el icono del logo */
-.app-brand .logo-icon {
-    font-size: 3.5rem; /* Tamaño grande del icono */
-    color: var(--accent-secondary); /* Color de acento secundario */
-}
-/* Ajuste para el icono en la barra superior */
-.top-bar .app-brand .logo-icon {
-    font-size: 2.5rem; /* Tamaño más pequeño para la barra superior */
-}
- 
-/* Estilo del nombre de la app con degradado */
-.app-brand h1 {
-    font-size: 2rem; /* Tamaño del título */
-    font-weight: 800; /* Negrita extra */
-    margin: 0; /* Elimina márgenes por defecto */
-    /* Degradado de color para el texto */
-    background: linear-gradient(45deg, var(--accent-secondary), var(--accent-primary));
-    -webkit-background-clip: text; /* Recorta el fondo al texto (para navegadores WebKit) */
-    -webkit-text-fill-color: transparent; /* Hace el texto transparente para que se vea el fondo */
-    background-clip: text;
-    color: transparent; /* Hace el texto transparente */
-}
-/* Ajuste para el título en la barra superior */
-.top-bar .app-brand h1 {
-    font-size: 1.8rem; /* Tamaño más pequeño para la barra superior */
-}
-
-/* Alineación del formulario de login */
-#loginForm {
-    text-align: left; /* Alinea el texto del formulario a la izquierda */
-}
-
-/* Estilos para cada grupo de formulario (label + input) */
-.form-group {
-    margin-bottom: 20px; /* Margen inferior entre grupos */
-}
-
-/* Estilos para las etiquetas de los campos del formulario */
-.form-group label {
-    display: block; /* Ocupa todo el ancho disponible */
-    margin-bottom: 8px; /* Margen inferior */
-    font-weight: 600; /* Seminegrita */
-    font-size: 0.9rem; /* Tamaño de fuente */
-}
- 
-/* Estilos para los campos de entrada de texto y contraseña */
-input[type="text"], input[type="password"], input[type="email"], input[type="number"], input[type="date"], select {
-    width: 100%; /* Ocupa todo el ancho del contenedor */
-    padding: 14px 18px; /* Espaciado interno */
-    border: 1px solid var(--border-color); /* Borde */
-    border-radius: 10px; /* Bordes redondeados */
-    background-color: var(--background-body); /* Fondo suave */
-    color: var(--text-primary); /* Color de texto */
-    font-size: 1rem; /* Tamaño de fuente */
-    transition: border-color 0.3s ease, box-shadow 0.3s ease; /* Transición suave para el foco */
-}
-input:focus, select:focus {
-    outline: none; /* Elimina el contorno por defecto del navegador */
-    border-color: var(--accent-secondary); /* Cambia el color del borde */
-    box-shadow: 0 0 0 4px rgba(79, 195, 247, 0.3); /* Añade una sombra de foco */
-}
-
-/* Estilos para el botón principal (login) */
-.btn-primary {
-    background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
-    color: white; /* Color de texto blanco */
-    width: 100%; /* Ocupa todo el ancho */
-    margin-top: 15px; /* Margen superior */
-    padding: 14px 30px; /* Espaciado interno */
-    border: none; /* Sin borde */
-    border-radius: 10px; /* Bordes redondeados */
-    cursor: pointer; /* Cambia el cursor a una mano */
-    font-size: 1.1rem; /* Tamaño de fuente */
-    font-weight: 700; /* Negrita */
-    transition: all 0.3s ease; /* Transición suave para todos los cambios */
-    display: flex; /* Usa flexbox para alinear el icono y el texto */
-    align-items: center; /* Centra verticalmente los elementos hijos */
-    justify-content: center; /* Centra horizontalmente los elementos hijos */
-    gap: 8px; /* Espacio entre el icono y el texto */
-}
-
-/* Estilos para el botón principal al pasar el ratón por encima */
-.btn-primary:hover {
-    transform: translateY(-3px); /* Ligeramente hacia arriba */
-    box-shadow: 0 8px 20px rgba(79, 195, 247, 0.4); /* Sombra más pronunciada */
-}
-
-/* Estilos para el botón principal cuando está deshabilitado */
-.btn-primary:disabled {
-    opacity: 0.6; /* Menor opacidad */
-    cursor: not-allowed; /* Cursor de "no permitido" */
-    transform: none; /* Sin transformación */
-    box-shadow: none; /* Sin sombra */
-}
-
-/* Estilos para el mensaje de error */
-.error-message {
-    color: var(--action-error); /* Color rojo para errores */
-    font-size: 0.85rem; /* Tamaño de fuente más pequeño */
-    margin-top: 8px; /* Margen superior */
-    min-height: 1.2em; /* Altura mínima para evitar saltos de diseño */
-}
-
-/* --- Estilos para la página de Home (Panel de Control) --- */
-
-.top-bar {
-    background-color: var(--background-container);
-    border-bottom: 1px solid var(--border-color);
-    padding: 15px 30px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-shadow: 0 2px 10px var(--shadow-color);
-}
-
-.user-info-box {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background-color: var(--background-body);
-    border-radius: 25px;
-    padding: 8px 15px;
-    border: 1px solid var(--border-color);
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.user-info-box:hover {
-    box-shadow: 0 4px 15px rgba(79, 195, 247, 0.2);
-    transform: translateY(-2px);
-}
-
-.user-info-box .user-details {
-    text-align: right;
-    line-height: 1.2;
-}
-
-.user-info-box .user-details div {
-    font-weight: 600;
     color: var(--text-primary);
+    min-height: 100vh;
+    display: flex; /* Importante para el layout sidebar + content */
+    overflow-x: hidden; /* Evita scroll horizontal al expandir sidebar */
 }
 
-.user-info-box .user-details small {
-    font-size: 0.8rem;
-    color: var(--text-secondary);
+/* Animación de aparición (para body.loaded) */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
-.user-info-box .mdi-account-circle-outline {
-    font-size: 2.2rem;
-    color: var(--accent-secondary);
+/* Clases para controlar la visibilidad del contenido principal durante la carga */
+body.loading {
+    opacity: 0;
+    pointer-events: none; /* Evita interacciones mientras carga */
+    transition: opacity 0.5s ease-out;
+}
+body.loaded {
+    opacity: 1;
+    pointer-events: auto;
+    animation: fadeIn 1s ease-in-out;
 }
 
-.page-container {
-    flex-grow: 1; /* Permite que el contenedor principal ocupe el espacio restante */
-    padding: 30px;
-    max-width: 1200px;
-    margin: 30px auto; /* Centra el contenedor en la página */
+
+/* --- Login Page Specific Styles (index.html) --- */
+.login-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Centra verticalmente en toda la altura de la ventana */
+    width: 100%;
+    max-width: 450px;
+    margin: 0 auto; /* Centra horizontalmente */
+    padding: 2.5rem;
     background-color: var(--background-container);
-    border-radius: 20px;
-    box-shadow: 0 5px 20px var(--shadow-color);
-}
-
-.header-dashboard {
+    border-radius: 18px;
+    box-shadow: 0 10px 30px var(--shadow-color);
     text-align: center;
-    margin-bottom: 40px;
+    transform: translateY(0); /* Para animación */
+    animation: fadeInScale 0.7s ease-out forwards;
 }
 
-.header-dashboard h1 {
-    font-size: 2.8rem;
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.app-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px; /* Espacio entre el icono y el texto */
+    margin-bottom: 2.5rem; /* Margen inferior para el login */
+}
+
+/* Estilos específicos para el app-brand en el login, para que el logo y el texto estén apilados */
+.login-container .app-brand {
+    flex-direction: column;
+}
+
+.app-brand .logo-icon {
+    font-size: 3.5rem;
+    color: var(--accent-primary);
+    text-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+}
+
+.app-brand h1 {
+    font-size: 2.5rem;
     font-weight: 800;
-    margin-bottom: 10px;
-    background: linear-gradient(45deg, var(--accent-secondary), var(--accent-primary));
+    margin: 0;
+    background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     color: transparent;
 }
 
-.header-dashboard p {
-    font-size: 1.2rem;
-    color: var(--text-secondary);
+.form-group {
+    margin-bottom: 1.5rem;
+    text-align: left;
+    width: 100%;
 }
 
-.tiles-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 25px;
-    justify-content: center; /* Centra los tiles si no llenan todo el ancho */
-}
-
-.tile {
-    background-color: var(--background-body);
-    border: 1px solid var(--border-color);
-    border-radius: 15px;
-    padding: 25px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none; /* Elimina el subrayado de los enlaces */
-    color: var(--text-primary);
+.form-group label {
+    display: block;
+    margin-bottom: 0.6rem;
     font-weight: 600;
-    font-size: 1.1rem;
-    transition: all 0.3s ease;
-    text-align: center;
-}
-
-.tile:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(79, 195, 247, 0.3);
-    background-color: var(--accent-glow-start);
-    color: white; /* Change text color on hover for better contrast */
-}
-
-.tile i {
-    font-size: 3.5rem;
-    color: var(--accent-secondary);
-    margin-bottom: 15px;
-    transition: color 0.3s ease;
-}
-
-.tile:hover i {
-    color: white; /* Change icon color on hover */
-}
-
-/* Specific style for logout button tile */
-#logout-button {
-    background: linear-gradient(45deg, var(--action-error), #d32f2f);
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-#logout-button:hover {
-    background: linear-gradient(45deg, #d32f2f, #c62828);
-    box-shadow: 0 10px 25px rgba(239, 83, 80, 0.3);
-    transform: translateY(-5px);
-}
-
-#logout-button i {
-    color: white; /* Asegura que el icono sea blanco para el botón de cerrar sesión */
-}
-
-/* --- Estilos para la página de Gestión de Usuarios (users.html) y Insumos (inventory.html) --- */
-
-/* General body setup for pages with sidebar */
-body {
-    font-family: var(--font-family);
-    background-color: var(--background-light);
     color: var(--text-primary);
-    display: flex; /* For sidebar and content layout */
-    min-height: 100vh;
+    font-size: 0.95rem;
 }
 
-/* Buttons */
+input[type="email"],
+input[type="password"],
+input[type="text"],
+input[type="number"],
+input[type="date"],
+textarea,
+select {
+    width: 100%;
+    padding: 0.9rem 1.2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 1rem;
+    color: var(--text-primary);
+    background-color: var(--background-light); /* Usa background-light para los inputs */
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+    outline: none;
+}
+
+/* Botones Generales */
 .btn {
     font-family: var(--font-family);
     padding: 10px 20px;
@@ -350,14 +196,44 @@ body {
     gap: 8px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
+
 .btn-primary {
+    width: 100%; /* Ajustado para el botón de login */
+    padding: 1.1rem; /* Ajustado para el botón de login */
+    margin-top: 1.5rem; /* Ajustado para el botón de login */
     background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
     color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
 }
+
 .btn-primary:hover {
+    opacity: 0.95;
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(79, 195, 247, 0.4);
+    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
 }
+
+.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:disabled {
+    background: var(--text-secondary);
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: none;
+    box-shadow: none;
+}
+
 .btn-secondary {
     background-color: var(--background-dark);
     color: var(--text-primary);
@@ -366,20 +242,20 @@ body {
     background-color: #c0c8d1; /* Slightly darker on hover */
 }
 .btn-edit {
-    background-color: rgba(79, 195, 247, 0.2);
+    background-color: rgba(14, 165, 233, 0.2); /* Usa accent-secondary */
     color: var(--accent-secondary);
     padding: 6px 10px;
 }
 .btn-edit:hover {
-    background-color: rgba(79, 195, 247, 0.3);
+    background-color: rgba(14, 165, 233, 0.3);
 }
 .btn-delete {
-    background-color: rgba(239, 83, 80, 0.2);
+    background-color: rgba(220, 53, 69, 0.2); /* Usa action-error */
     color: var(--action-error);
     padding: 6px 10px;
 }
 .btn-delete:hover {
-    background-color: rgba(239, 83, 80, 0.3);
+    background-color: rgba(220, 53, 69, 0.3);
 }
 .btn-danger {
     background-color: var(--action-error);
@@ -389,168 +265,391 @@ body {
     background-color: #d32f2f;
 }
 
-/* Inputs and Selects */
-input, select {
-    width: 100%;
-    padding: 12px 15px;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background-color: var(--background-dark);
-    color: var(--text-primary);
-    font-size: 1rem;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+.error-message {
+    color: var(--action-error);
+    font-size: 0.9rem;
+    margin-top: 1rem;
+    text-align: center;
+    height: 1.2em; /* Mantiene el espacio para el mensaje de error */
 }
 
-/* Notifications */
+/* --- App Notifications --- */
 #app-notification {
     position: fixed;
-    top: 25px;
-    right: 25px;
-    padding: 12px 25px;
-    border-radius: 8px;
-    color: white;
-    z-index: 2000;
+    bottom: 20px; /* Cambiado a bottom para no chocar con la barra superior */
+    right: 20px;
+    background-color: var(--background-container);
+    color: var(--text-primary);
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px var(--shadow-color);
     opacity: 0;
-    transition: opacity 0.5s ease, transform 0.5s ease;
-    transform: translateX(100%); /* Initially off-screen */
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: opacity 0.4s ease-out, transform 0.4s ease-out, visibility 0.4s ease-out;
+    z-index: 1000;
+    min-width: 250px;
+    text-align: center;
+    font-weight: 500;
 }
+
 #app-notification.show {
     opacity: 1;
-    transform: translateX(0); /* Slides into view */
+    visibility: visible;
+    transform: translateY(0);
 }
-#app-notification.success { background-color: var(--action-success); }
-#app-notification.error { background-color: var(--action-error); }
-#app-notification.info { background-color: var(--accent-secondary); } /* For informational messages */
 
-
-/* Sidebar */
-nav#sidebar {
-    width: var(--sidebar-width-collapsed);
-    background: var(--background-medium);
-    display: flex;
-    flex-direction: column;
-    transition: width 0.3s ease;
-    position: fixed; /* Fixed on screen */
-    height: 100vh;
-    z-index: 1000;
-    border-right: 1px solid var(--border-color);
-}
-nav#sidebar:hover {
-    width: var(--sidebar-width-expanded);
-}
-nav#sidebar header {
-    padding: 1.2rem 1rem;
-    font-weight: 700;
-    text-align: center;
-    border-bottom: 1px solid var(--border-color);
-    background: var(--background-dark);
-    white-space: nowrap;
-    overflow: hidden;
-    font-size: 0; /* Hidden by default */
-    transition: font-size 0.3s ease;
-}
-nav#sidebar:hover header {
-    font-size: 1.3rem; /* Title visible on expand */
-}
-#user-info {
-    padding: 1rem;
-    border-top: 1px solid var(--border-color);
-    text-align: center;
-    opacity: 0;
-    height: 0;
-    overflow: hidden;
-    transition: opacity 0.3s ease, height 0.3s ease, padding 0.3s ease;
-}
-nav#sidebar:hover #user-info {
-    opacity: 1;
-    height: auto; /* Show user info */
-    padding: 1rem;
-}
-#user-logout-btn-sidebar {
-    background: transparent;
-    border: 1px solid var(--border-color);
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 8px;
-    color: var(--text-primary);
-}
-#user-logout-btn-sidebar:hover {
-    background-color: var(--background-dark);
-}
-nav#sidebar ul {
-    list-style: none;
-    padding: 0;
-    flex-grow: 1; /* Occupy remaining space */
-}
-nav#sidebar ul li a {
-    display: flex;
-    align-items: center;
-    color: var(--text-primary);
-    text-decoration: none;
-    padding: 1rem 1.2rem;
-    white-space: nowrap;
-    overflow: hidden;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-nav#sidebar ul li a:hover {
-    background-color: var(--accent-primary);
+#app-notification.success {
+    background-color: var(--action-success);
     color: white;
 }
-nav#sidebar ul li a .material-symbols-outlined {
+
+#app-notification.error {
+    background-color: var(--action-error);
+    color: white;
+}
+
+#app-notification.info {
+    background-color: var(--action-info);
+    color: white;
+}
+
+/* --- Sidebar Styles --- */
+#sidebar {
+    width: var(--sidebar-width-collapsed); /* Empieza colapsado */
+    background-color: var(--sidebar-bg);
+    color: var(--sidebar-text);
+    padding: 20px 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    transition: width 0.3s ease, transform 0.3s ease;
+    position: fixed;
+    height: 100vh;
+    z-index: 100;
+    overflow-y: auto;
+}
+
+/* Cuando el sidebar está expandido (via JS class) */
+#sidebar.expanded {
+    width: var(--sidebar-width-expanded);
+}
+
+#sidebar header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 20px 20px;
+    border-bottom: 1px solid var(--sidebar-border-color);
+    margin-bottom: 20px;
+}
+
+#sidebar header .logo-icon {
+    font-size: 2.8rem;
+    color: var(--sidebar-logo-color);
+}
+
+#sidebar header .text {
     font-size: 1.6rem;
-    transition: margin-right 0.3s ease, color 0.3s ease;
-    color: var(--accent-secondary); /* Default icon color */
-}
-nav#sidebar:hover ul li a .material-symbols-outlined {
-    margin-right: 1rem; /* Space between icon and text */
-}
-nav#sidebar ul li a:hover .material-symbols-outlined {
-    color: white; /* Icon color on hover */
-}
-nav#sidebar ul li a span.text {
-    display: none;
-    opacity: 0;
+    font-weight: 700;
+    color: white;
+    white-space: nowrap;
+    opacity: 0; /* Oculto por defecto */
     transition: opacity 0.3s ease;
 }
-nav#sidebar:hover ul li a span.text {
-    display: inline;
-    opacity: 1; /* Show menu text */
+
+/* Mostrar texto cuando el sidebar está expandido */
+#sidebar.expanded header .text {
+    opacity: 1;
 }
- 
-/* Main Content Area */
-main#content {
+
+#sidebar ul {
+    list-style: none;
     flex-grow: 1;
-    margin-left: var(--sidebar-width-collapsed); /* Space for collapsed sidebar */
-    padding: 2rem 3rem;
+}
+
+#sidebar ul li a {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 20px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+#sidebar ul li a .material-icons-outlined {
+    font-size: 1.8rem;
+    color: var(--sidebar-icon-color);
+    transition: color 0.3s ease;
+    min-width: 24px;
+}
+
+#sidebar ul li a:hover {
+    background-color: var(--sidebar-hover-bg);
+    color: white;
+}
+
+#sidebar ul li a.active {
+    background-color: var(--sidebar-active-bg);
+    color: white;
+    font-weight: 600;
+    border-left: 5px solid var(--accent-primary);
+    padding-left: 15px;
+}
+
+#sidebar ul li a.active .material-icons-outlined {
+    color: var(--accent-primary);
+}
+
+.sidebar-bottom {
+    padding: 20px;
+    border-top: 1px solid var(--sidebar-border-color);
+    margin-top: 20px;
+    background-color: var(--sidebar-bottom-bg);
+    text-align: center;
+}
+
+#user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+}
+#user-info:hover {
+    background-color: rgba(255,255,255,0.1);
+}
+
+#user-info .mdi-account-circle-outline {
+    font-size: 2.2rem;
+    color: var(--accent-secondary);
+}
+
+.user-details-sidebar {
+    text-align: left;
+    overflow: hidden;
+    opacity: 0; /* Oculto por defecto */
+    transition: opacity 0.3s ease;
+}
+/* Mostrar detalles de usuario cuando el sidebar está expandido */
+#sidebar.expanded .user-details-sidebar {
+    opacity: 1;
+}
+
+.user-details-sidebar div {
+    font-weight: 600;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.user-details-sidebar small {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.btn-logout {
+    width: 100%;
+    padding: 12px 15px;
+    background: linear-gradient(45deg, var(--action-error), #d32f2f);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    opacity: 0; /* Oculto por defecto */
+    transform: scaleX(0); /* Inicialmente colapsado horizontalmente */
+    transform-origin: left;
+}
+
+/* Mostrar botón de logout cuando el sidebar está expandido */
+#sidebar.expanded .btn-logout {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+.btn-logout:hover {
+    background: linear-gradient(45deg, #d32f2f, #c62828);
+    box-shadow: 0 5px 15px rgba(239, 83, 80, 0.3);
+    transform: translateY(-2px);
+}
+.btn-logout:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background: gray;
+    transform: none;
+    box-shadow: none;
+}
+
+
+/* --- Main Content Area (for pages with sidebar) --- */
+#content {
+    flex-grow: 1;
+    margin-left: var(--sidebar-width-collapsed); /* Espacio para el sidebar colapsado */
+    padding: 30px;
     transition: margin-left 0.3s ease;
+    width: calc(100% - var(--sidebar-width-collapsed)); /* Ancho total menos sidebar */
 }
-nav#sidebar:hover + main#content {
-    margin-left: var(--sidebar-width-expanded); /* Space for expanded sidebar */
+
+/* Ajusta el margen del contenido cuando el sidebar está expandido */
+#sidebar.expanded + #content {
+    margin-left: var(--sidebar-width-expanded);
+    width: calc(100% - var(--sidebar-width-expanded));
 }
- 
+
 .main-header {
     display: flex;
     align-items: center;
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    background-color: var(--background-container);
+    padding: 15px 25px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px var(--shadow-color);
+}
+.page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(45deg, var(--accent-secondary), var(--accent-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
 }
 #menu-toggle-btn {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 1.8rem;
+    font-size: 2.2rem; /* Ajustado para ser más grande */
     color: var(--text-primary);
-    display: none; /* Hidden by default on desktop, visible on mobile */
+    display: none; /* Oculto por defecto en desktop, visible en mobile */
+    margin-right: 10px;
+    transition: color 0.3s ease;
 }
- 
+#menu-toggle-btn:hover {
+    color: var(--accent-secondary);
+}
+
 .content-wrapper {
-    background-color: var(--background-container); /* Changed from medium to container for consistency */
+    background-color: var(--background-container);
     border: 1px solid var(--border-color);
     border-radius: 16px;
     padding: 30px;
     box-shadow: 0 8px 25px var(--shadow-color);
 }
+
+/* --- Dashboard (home.html) Specific Styles --- */
+/* Cuando el body tiene la clase 'homepage', oculta el sidebar y expande el contenido */
+body.homepage #sidebar {
+    display: none;
+    width: 0;
+}
+
+body.homepage #content {
+    margin-left: 0;
+    width: 100%;
+    padding: 30px; /* Asegura el padding correcto */
+}
+
+/* Ocultar el botón de alternar menú en la homepage si el sidebar no estará presente */
+body.homepage #menu-toggle-btn {
+    display: none;
+}
+
+body.homepage .main-header {
+    margin-left: 0; /* Asegura que el header esté alineado a la izquierda */
+    justify-content: center; /* Centra el título en la homepage */
+    padding: 25px; /* Ajusta el padding para un header más centrado */
+    margin-bottom: 2.5rem;
+}
+
+body.homepage .page-title {
+    font-size: 2.8rem; /* Tamaño más grande para el título principal */
+}
+
+.content-wrapper p {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.tiles-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 25px;
+    justify-content: center;
+    margin-top: 30px;
+}
+.tile {
+    background-color: var(--background-light); /* Usa background-light para los tiles */
+    border: 1px solid var(--border-color);
+    border-radius: 15px;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+.tile:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(14, 165, 233, 0.3); /* Usa accent-secondary para el glow */
+    background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+    color: white;
+}
+.tile i {
+    font-size: 3.5rem;
+    color: var(--accent-secondary);
+    margin-bottom: 15px;
+    transition: color 0.3s ease;
+}
+.tile:hover i {
+    color: white;
+}
+
+/* Estilos para el botón de Cerrar Sesión como un tile separado en home.html si es necesario */
+/* Esto reemplaza #logout-button si se usa como un tile */
+.tile.logout {
+    background: linear-gradient(45deg, var(--action-error), #d32f2f);
+    color: white;
+    border: none;
+}
+.tile.logout:hover {
+    background: linear-gradient(45deg, #d32f2f, #c62828);
+    box-shadow: 0 10px 25px rgba(239, 83, 80, 0.3);
+    transform: translateY(-5px);
+}
+.tile.logout i {
+    color: white; /* Asegura que el icono sea blanco para el botón de cerrar sesión */
+}
+
+
+/* --- Common Styles for Tables and Modals (Users, Inventory, etc.) --- */
 .table-controls {
     display: flex;
     justify-content: space-between;
@@ -602,9 +701,9 @@ nav#sidebar:hover + main#content {
     max-width: 500px;
     position: relative;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-    animation: slideUp 0.4s ease-out; /* Animation for modal appearance */
+    animation: slideUpModal 0.4s ease-out; /* Animation for modal appearance */
 }
-@keyframes slideUp {
+@keyframes slideUpModal { /* Renombrado para evitar conflicto con slideUp de login */
     from { transform: translateY(20px); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
 }
@@ -666,7 +765,7 @@ tr.insumo-row {
 }
 tr.lote-row td {
     padding-left: 30px; /* Indent lotes */
-    background-color: #fafbfc; /* Light background for lotes */
+    background-color: var(--background-light); /* Light background for lotes */
 }
 
 /* Dropdown for CSV actions */
@@ -677,7 +776,7 @@ tr.lote-row td {
 .dropdown-menu {
     display: none;
     position: absolute;
-    background-color: var(--background-light);
+    background-color: var(--background-container); /* Usar background-container */
     min-width: 180px;
     box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
     z-index: 1;
@@ -696,7 +795,7 @@ tr.lote-row td {
     font-size: 0.9rem;
 }
 .dropdown-menu a:hover {
-    background-color: var(--background-medium);
+    background-color: var(--background-dark);
 }
 .dropdown-container.show .dropdown-menu {
     display: block;
@@ -714,7 +813,7 @@ input[type="checkbox"] {
     appearance: none; /* Hide default checkbox */
     -webkit-appearance: none;
     -moz-appearance: none;
-    background-color: var(--background-dark);
+    background-color: var(--background-light); /* Un fondo más claro para checkbox */
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
@@ -735,27 +834,61 @@ input[type="checkbox"]:checked::before {
     color: white;
 }
 
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    #menu-toggle-btn { display: inline-flex; }
-    /* Override hover effect for sidebar to allow button control */
-    nav#sidebar:hover { width: var(--sidebar-width-collapsed); }
-    nav#sidebar:hover header { font-size: 0; }
-    nav#sidebar:hover #user-info { opacity: 0; height: 0; }
-    nav#sidebar:hover ul li a .material-symbols-outlined { margin-right: 0; }
-    nav#sidebar:hover ul li a span.text { display: none; opacity: 0; }
-    nav#sidebar:hover + main#content { margin-left: var(--sidebar-width-collapsed); }
+/* --- Responsive Adjustments --- */
+@media (max-width: 992px) { /* Ajustado a 992px para tabletas */
+    /* Sidebar se oculta completamente y se expande con clase 'expanded' */
+    #sidebar {
+        width: 0;
+        transform: translateX(-100%);
+        box-shadow: none; /* Sin sombra cuando está oculto */
+        /* transition: transform 0.3s ease;  No es necesario si ya está en la definición principal */
+    }
+    #sidebar.expanded {
+        width: var(--sidebar-width-expanded);
+        transform: translateX(0);
+        box-shadow: 3px 0 15px rgba(0,0,0,0.2); /* Sombra cuando está expandido */
+    }
 
-    /* Expand/collapse sidebar with click via .expanded class */
-    nav#sidebar.expanded { width: var(--sidebar-width-expanded); }
-    nav#sidebar.expanded header { font-size: 1.3rem; }
-    nav#sidebar.expanded #user-info { opacity: 1; height: auto; }
-    nav#sidebar.expanded ul li a .material-symbols-outlined { margin-right: 1rem; }
-    nav#sidebar.expanded ul li a span.text { display: inline; opacity: 1; }
-    
-    main#content { margin-left: 0; padding: 1.5rem; }
-    
-    /* Responsive table */
+    /* Contenido principal ocupa todo el ancho cuando el sidebar está colapsado/oculto */
+    #content {
+        margin-left: 0;
+        width: 100%;
+        padding: 1.5rem; /* Ajusta padding en móviles */
+    }
+
+    /* Mostrar el botón de alternar menú en pantallas pequeñas */
+    #menu-toggle-btn {
+        display: block;
+    }
+
+    .main-header {
+        justify-content: flex-start; /* Alinea a la izquierda en móviles */
+    }
+
+    /* Homepage específicos para móvil */
+    body.homepage .main-header {
+        justify-content: center; /* Mantener centrado en homepage */
+        padding: 15px 20px;
+        margin-bottom: 2rem;
+    }
+    body.homepage .page-title {
+        font-size: 2.2rem;
+    }
+
+    .tiles-container {
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 15px;
+    }
+    .tile {
+        padding: 15px;
+        font-size: 1rem;
+    }
+    .tile i {
+        font-size: 2.8rem;
+        margin-bottom: 10px;
+    }
+
+    /* Tablas responsivas */
     .users-table thead, #tableProducts thead { display: none; }
     .users-table, .users-table tbody, .users-table tr, .users-table td,
     #tableProducts, #tableProducts tbody, #tableProducts tr, #tableProducts td {
@@ -797,5 +930,30 @@ input[type="checkbox"]:checked::before {
     }
     tr.lote-row td table td::before {
         display: none; /* Hide data-label for nested table cells */
+    }
+}
+
+@media (max-width: 576px) {
+    .login-container {
+        padding: 1.5rem;
+    }
+    .app-brand h1 {
+        font-size: 2rem;
+    }
+    .page-title {
+        font-size: 1.8rem;
+    }
+    .main-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    #menu-toggle-btn {
+        margin-bottom: 10px;
+    }
+    .content-wrapper {
+        padding: 20px;
+    }
+    .tiles-container {
+        grid-template-columns: 1fr; /* Una columna en pantallas muy pequeñas */
     }
 }
